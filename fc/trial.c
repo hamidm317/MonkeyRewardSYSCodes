@@ -15,6 +15,8 @@
  * For use with Version 2.0 of EyeLink Windows API                           *
  *****************************************************************************/
 
+// powered by SoUrUsH
+
 
 #include "picture.h"
 #include "../coding.h"
