@@ -15,12 +15,6 @@
  * For use with Version 2.0 of EyeLink Windows API                           *
  *****************************************************************************/
 
-
-/// anothe
-////////
-
-
-
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
