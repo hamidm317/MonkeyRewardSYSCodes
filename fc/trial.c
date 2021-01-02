@@ -56,7 +56,7 @@ int fractSetToLoad;
 
 int numberOfFractsPerTrial = 0;
 
-char LabelingType[20];
+// char LabelingType[20];
 /***************************** PERFORM AN EXPERIMENTAL TRIAL  ***************/
 
 /* End recording: adds 100 msec of data to catch final events */
@@ -1819,32 +1819,32 @@ int reloadConf(){
 		
 		///////////////////////////////////////// UpDaTeS bY HT_OSRU ////////////////////////////////////////
 		
-		if (strstr(str, "LabelingType") != NULL)
-		{
+		// if (strstr(str, "LabelingType") != NULL)
+		// {
 
-			char parsedStr[20];
-			parsedStr = strstr(str, "=");
-			strcpy(LabelingType, parsedStr);
+		// 	char parsedStr[20];
+		// 	parsedStr = strstr(str, "=");
+		// 	strcpy(LabelingType, parsedStr);
 
-		}
+		// }
 		
-		if (strstr(str, "numberOfFractPerTrial") != NULL)
-		{
+		// if (strstr(str, "numberOfFractPerTrial") != NULL)
+		// {
 
-			int parsedInt;
-			parsedInt = atoi(strstr(str, "="));
-			numberOfFractsPerTrial = parsedInt;
+		// 	int parsedInt;
+		// 	parsedInt = atoi(strstr(str, "="));
+		// 	numberOfFractsPerTrial = parsedInt;
 
-		}
+		// }
 
-		if (strstr(str, "APP_VER") != NULL)
-		{
+		// if (strstr(str, "APP_VER") != NULL)
+		// {
 
-			int parsedInt;
-			parsedInt = atoi(strstr(str, "="));
-			APP_VER = parsedInt;
+		// 	int parsedInt;
+		// 	parsedInt = atoi(strstr(str, "="));
+		// 	APP_VER = parsedInt;
 
-		}
+		// }
 
 	}
 	fclose(fp);
