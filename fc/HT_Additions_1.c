@@ -143,3 +143,40 @@ double RandGenerator()
     return (double)rand() / (double)RAND_MAX;
 
 }
+
+// strcpy(Type1, "Binary_Labeling")
+// strcpy(Type2, "Amount_Labeling")
+// strcpy(Type3, "Probable_Labeling")
+
+int ProbablisticModeSTPoint = 1200;
+int ProbablisticModeLen = 100;
+
+int AmountModeSTPoint = 1400;
+int AmountModeLen = 100;
+
+int BinaryModeSTPoint = 500;
+int BinaryModeLen = 500;
+
+void labelRanging(int set)
+{
+    if (set > BinaryModeSTPoint && set =< BinaryModeSTPoint + BinaryModeLen)
+    {
+        strcpy(LabelingType, "Binary_Labeling")
+    }
+    else
+    {
+        if (set > AmountModeSTPoint && set =< AmountModeSTPoint + AmountModeLen)
+        {
+            strcpy(LabelingType, "Amount_Labeling")
+        }
+        else
+        {
+            if (set > ProbablisticModeSTPoint && set =< ProbablisticModeSTPoint + ProbablisticModeLen)
+            {
+                strcpy(LabelingType, "Probable_Labeling")
+            }
+        }
+        
+    }
+    
+}

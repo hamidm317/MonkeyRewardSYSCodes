@@ -54,9 +54,10 @@ int gazeXOffset = 0;
 int gazeYOffset = 0;
 int fractSetToLoad;
 
-int numberOfFractsPerTrial = 0;
+int numberOfFractsPerTrial = 5;
+int AsAdmin = 0;
 
-// char LabelingType[20];
+char LabelingType[20];
 /***************************** PERFORM AN EXPERIMENTAL TRIAL  ***************/
 
 /* End recording: adds 100 msec of data to catch final events */
@@ -1828,14 +1829,14 @@ int reloadConf(){
 
 		// }
 		
-		// if (strstr(str, "numberOfFractPerTrial") != NULL)
-		// {
+		if (strstr(str, "numberOfFractPerTrial") != NULL)
+		{
 
-		// 	int parsedInt;
-		// 	parsedInt = atoi(strstr(str, "="));
-		// 	numberOfFractsPerTrial = parsedInt;
+			int parsedInt;
+			parsedInt = atoi(strstr(str, "="));
+			numberOfFractsPerTrial = parsedInt;
 
-		// }
+		}
 
 		// if (strstr(str, "APP_VER") != NULL)
 		// {
@@ -1845,6 +1846,15 @@ int reloadConf(){
 		// 	APP_VER = parsedInt;
 
 		// }
+
+		if (strstr(str, "AsAdmin") != NULL)
+		{
+
+			int parsedInt;
+			parsedInt = atoi(strstr(str, "="));
+			AsAdmin = parsedInt;
+
+		}		
 
 	}
 	fclose(fp);
