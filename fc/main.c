@@ -339,9 +339,9 @@ int app_main(char * trackerip, DISPLAYINFO * disp)
 			//	randomSequenseNumbers[i] %= 16;
 			//	randomSequenseNumbersRegions[i] %= 16;
 			//}
-			randGen(64, randomSequenseNumbersForce,1);
-			randGen(16, randomSequenseNumbersChoice,1);
-			randGen(16, randomSequenseNumbersRegionsChoice,1);
+			randGen(numberOfFractPerTrial * numberOfFractPerTrial, randomSequenseNumbersForce,1);
+			randGen(numberOfFractPerTrial * 2, randomSequenseNumbersChoice,1);
+			randGen(numberOfFractPerTrial * 2, randomSequenseNumbersRegionsChoice,1);
 			
 			//for (int i=0; i<64; i++)
 			//	printf("Rand[%d] = %d\n", i, randomSequenseNumbers[i]);

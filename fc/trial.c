@@ -56,8 +56,22 @@ int fractSetToLoad;
 
 int numberOfFractsPerTrial = 5;
 int AsAdmin = 0;
+int TypeTempVar = 0;
 
 char LabelingType[20];
+
+// types of labeling
+char Type1[100];
+char Type2[100];
+char Type3[100];
+
+strcpy(Type1, "Binary_Labeling")
+strcpy(Type2, "Amount_Labeling")
+strcpy(Type3, "Probable_Labeling")
+
+
+
+
 /***************************** PERFORM AN EXPERIMENTAL TRIAL  ***************/
 
 /* End recording: adds 100 msec of data to catch final events */
@@ -1543,15 +1557,6 @@ int HT_OSRU_getFractal(int n){
 int HT_OSRU_getRegionByLabel(int n, int Label)
 {
 
-    // types of labeling
-    char Type1[100];
-    char Type2[100];
-    char Type3[100];
-
-    strcpy(Type1, "Binary_Labeling")
-    strcpy(Type2, "Amount_Labeling")
-    strcpy(Type3, "Probable_Labeling")
-
     int TypeTempVar;
     TypeTempVar = 1; // set labeling type default to Binary mode
     if (strcmp(Type1, LabelingType) == 0)
@@ -1602,12 +1607,79 @@ int HT_OSRU_getRegionByLabel(int n, int Label)
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+/////////////////////////////////////////////// UpDaTeS By HT_OSRU ////////////////////////////////////////////////////
 
-/*
-int getFractal(int n){
-	return n%8;
+int HT_OSRU_TypeVar()
+{
+    TypeTempVar = 1; // set labeling type default to Binary mode
+    if (strcmp(Type1, LabelingType) == 0)
+    {
+        TypeTempVar = 1;
+    }
+    else if (strcmp(Type2, LabelingType) == 0)
+    {
+        TypeTempVar = 2;
+    }
+    else if (strcmp(Type3, LabelingType) == 0)
+    {
+        TypeTempVar = 3;
+    }
+
+	return TypeTempVar;
 }
-*/
+
+
+int HT_OSRU_getFractalByLabel(int n, int label)
+{
+	TypeTempVar = TypeTempVar();
+
+    switch (TypeTempVar)
+    {
+        case 1: //Type is Binary Labeling for n fractal in set factal 1 to floor(n / 2) is good and floor(n / 2) + 1 to n is bad
+            if (Label == 0)
+			{
+				
+				return n / (numberOfFractsPerTrial / 2);
+
+			}
+			else if (Label == 1)
+			{
+				
+				return numberOfFractsPerTrial / 2 + n % numberOfFractsPerTrial;
+				
+			}
+            break;
+
+        case 2: //Type is amount labeling and we set a range of 0 to 100 for this labels.
+            
+            break;
+
+        case 3: //Type is probable labeling and we set a range of 0 to 100 for this labels. (Difference of this part and previous part is in rewarding part)
+            
+            break;
+        default:;
+            break;
+    }
+}
+
+SDL_Rect getSensationRectGood(){
+	SDL_Rect r;
+	SDL_Rect rect;
+	r.x = (Rect_Regions[getRegionGood(randomSequenseNumbersRegionsChoice[currentSequenceNumberChoice])].x -
+             ((Rect_Sensation.w - Rect_Regions[getRegionGood(randomSequenseNumbersRegionsChoice[currentSequenceNumberChoice])].w)/2)); 
+	r.y = (Rect_Regions[getRegionGood(randomSequenseNumbersRegionsChoice[currentSequenceNumberChoice])].y -
+             ((Rect_Sensation.h - Rect_Regions[getRegionGood(randomSequenseNumbersRegionsChoice[currentSequenceNumberChoice])].h)/2));
+	r.w = Rect_Sensation.w;
+	r.h = Rect_Sensation.h;
+	eyemsg_printf("Current Good Sensation Window x,y,w,h = %d,%d,%d,%d\n", r.x, r.y, r.w, r.h);
+	eyemsg_printf("Current Good Fractal Region = %d", getRegionGood(randomSequenseNumbersRegionsChoice[currentSequenceNumberChoice]));
+	rect = getTransformedRect(r);
+	return rect;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 int getFractalGood(int n){ /////////////// Should be revised HT_OSRU //////////////
 	return n/4;
 }
@@ -1615,7 +1687,7 @@ int getFractalGood(int n){ /////////////// Should be revised HT_OSRU ///////////
 int getFractalBad(int n){ /////////////// Should be revised HT_OSRU //////////////
 	return 4+(n%4);
 }
-SDL_Rect getSensationRectGood(){ /////////////// Should be revised HT_OSRU //////////////
+SDL_Rect getSensationRectGood(){ /////////////// Should be revised HT_OSRU ///////////////
 	SDL_Rect r;
 	SDL_Rect rect;
 	r.x = (Rect_Regions[getRegionGood(randomSequenseNumbersRegionsChoice[currentSequenceNumberChoice])].x -
@@ -1977,7 +2049,7 @@ void drawCircle(SDL_Renderer *renderer, SDL_Texture * texture, SDL_Color color, 
    }
 }
 
-void writeConfigToEyelink(){ ///////////////////////// Should Be changed HT_OSRU /////////////////////////
+void writeConfigToEyelink(){ ///////////////////////// Should Be revised HT_OSRU /////////////////////////
 	eyemsg_printf(" -numoftrials  %d ", numberOfBatchExperiments);
 	eyemsg_printf(" -set  %d ", fractSetToLoad);
 	eyemsg_printf(" -iti  %d ", trialStates[Trial_State_ITI].expirationTime);
