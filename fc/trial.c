@@ -56,7 +56,7 @@ int fractSetToLoad;
 
 int numberOfFractsPerTrial = 5;
 int AsAdmin = 0;
-int TypeTempVar = 0;
+int TypeTempVar = 1;
 
 char LabelingType[20];
 
@@ -1557,20 +1557,7 @@ int HT_OSRU_getFractal(int n){
 int HT_OSRU_getRegionByLabel(int n, int Label)
 {
 
-    int TypeTempVar;
-    TypeTempVar = 1; // set labeling type default to Binary mode
-    if (strcmp(Type1, LabelingType) == 0)
-    {
-        TypeTempVar = 1;
-    }
-    else if (strcmp(Type2, LabelingType) == 0)
-    {
-        TypeTempVar = 2;
-    }
-    else if (strcmp(Type3, LabelingType) == 0)
-    {
-        TypeTempVar = 3;
-    }
+    TypeTempVar = TypeTempVar();
 
     switch (TypeTempVar)
     {
@@ -1581,7 +1568,8 @@ int HT_OSRU_getRegionByLabel(int n, int Label)
 				{
 					return (regionOverride + numberOfFractsPerTrial / 2 + 1);
 				}
-			return (numberOfFractsPerTrial / 2 + HT_OSRU_getRegionByLabel(n, 1))) % numberOfFractsPerTrial;
+
+				return (numberOfFractsPerTrial / 2 + n % numberOfFractsPerTrial)) % numberOfFractsPerTrial;
 			}
 			else if (Label == 1)
 			{
@@ -1589,16 +1577,27 @@ int HT_OSRU_getRegionByLabel(int n, int Label)
 				{
 					return (regionOverride - 1);
 				}
-			return n % numberOfFractsPerTrial;
+
+				return n % numberOfFractsPerTrial;
 			}
             break;
 
         case 2: //Type is amount labeling and we set a range of 0 to 100 for this labels.
-            
+            if (regionOverride != 0)
+				{
+					return (regionOverride - 1);
+				}
+
+			return n % numberOfFractsPerTrial;
             break;
 
         case 3: //Type is probable labeling and we set a range of 0 to 100 for this labels. (Difference of this part and previous part is in rewarding part)
-            
+            if (regionOverride != 0)
+				{
+					return (regionOverride - 1);
+				}
+
+			return n % numberOfFractsPerTrial;
             break;
         default:;
             break;
@@ -1631,8 +1630,7 @@ int HT_OSRU_TypeVar()
 
 int HT_OSRU_getFractalByLabel(int n, int label)
 {
-	TypeTempVar = TypeTempVar();
-
+	
     switch (TypeTempVar)
     {
         case 1: //Type is Binary Labeling for n fractal in set factal 1 to floor(n / 2) is good and floor(n / 2) + 1 to n is bad
@@ -1652,17 +1650,21 @@ int HT_OSRU_getFractalByLabel(int n, int label)
 
         case 2: //Type is amount labeling and we set a range of 0 to 100 for this labels.
             
+			return n % numberOfFractsPerTrial;
+
             break;
 
         case 3: //Type is probable labeling and we set a range of 0 to 100 for this labels. (Difference of this part and previous part is in rewarding part)
             
+			return n % numberOfFractsPerTrial;
+
             break;
         default:;
             break;
     }
 }
 
-SDL_Rect getSensationRectGood(){
+SDL_Rect getSensationRectByLabel(){
 	SDL_Rect r;
 	SDL_Rect rect;
 	r.x = (Rect_Regions[getRegionGood(randomSequenseNumbersRegionsChoice[currentSequenceNumberChoice])].x -
