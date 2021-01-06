@@ -148,14 +148,14 @@ double RandGenerator()
 // strcpy(Type2, "Amount_Labeling")
 // strcpy(Type3, "Probable_Labeling")
 
-int ProbablisticModeSTPoint = 1200;
+int ProbablisticModeSTPoint = 300;
 int ProbablisticModeLen = 100;
 
-int AmountModeSTPoint = 1400;
+int AmountModeSTPoint = 200;
 int AmountModeLen = 100;
 
-int BinaryModeSTPoint = 500;
-int BinaryModeLen = 500;
+int BinaryModeSTPoint = 120;
+int BinaryModeLen = 80;
 
 void labelRanging(int set)
 {
