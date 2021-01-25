@@ -57,6 +57,7 @@ int fractSetToLoad;
 int numberOfFractsPerTrial = 5;
 int AsAdmin = 0;
 int TypeTempVar = 1;
+int currentLabel = 0;
 
 char LabelingType[20];
 
@@ -975,6 +976,30 @@ void drawSensationWindowGood(){
 	SDL_RenderDrawRect(renderer2, &r);
 }
 
+///////////////////////////////////////////////////// UpDaTeS By HT_OSRU //////////////////////////////////////////////////////
+
+void HT_OSRU_drawSensationWindowLabeled(int Label){
+
+	SDL_Rect r;
+	SDL_Rect r_msg;
+	SDL_Color c;
+	c = Color_Fixation_Window_Success;
+       //	= {0,0,0,0};
+	r = HT_OSRU_getSensationRectLabeled(Label);
+	r_msg = getUntransformedRect(r);
+	eyemsg_printf("Sensation Window Rect type: (%d, %d) x,y,w,h = %d,%d,%d,%d", TypeTempVar, Label, r_msg.x, r_msg.y, r_msg.w, r_msg.h);
+	//c = (getFractal(randomSequenseNumbers[currentSequenceNumber]) < 4) ? Color_Fixation_Window_Success : Color_Fixation_Window_Error;
+//	SDL_SetRenderTarget(renderer2, Texture_Sensation_Window);
+//	SDL_SetRenderDrawColor(renderer2, Color_Background.r, Color_Background.g, Color_Background.b, 0);
+//	SDL_RenderClear(renderer2);
+	//printf("Good R: x,y,w,h = %d,%d,%d,%d", r.x, r.y, r.w, r.h);
+	SDL_SetRenderDrawBlendMode(renderer2, SDL_BLENDMODE_BLEND);
+	SDL_SetRenderDrawColor(renderer2, c.r,c.g,c.b,255);
+	SDL_RenderDrawRect(renderer2, &r);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 void drawSensationWindowBad(){
 
 	SDL_Rect r;
@@ -1664,19 +1689,33 @@ int HT_OSRU_getFractalByLabel(int n, int label)
     }
 }
 
-SDL_Rect getSensationRectByLabel(){
-	SDL_Rect r;
-	SDL_Rect rect;
-	r.x = (Rect_Regions[getRegionGood(randomSequenseNumbersRegionsChoice[currentSequenceNumberChoice])].x -
-             ((Rect_Sensation.w - Rect_Regions[getRegionGood(randomSequenseNumbersRegionsChoice[currentSequenceNumberChoice])].w)/2)); 
-	r.y = (Rect_Regions[getRegionGood(randomSequenseNumbersRegionsChoice[currentSequenceNumberChoice])].y -
-             ((Rect_Sensation.h - Rect_Regions[getRegionGood(randomSequenseNumbersRegionsChoice[currentSequenceNumberChoice])].h)/2));
-	r.w = Rect_Sensation.w;
-	r.h = Rect_Sensation.h;
-	eyemsg_printf("Current Good Sensation Window x,y,w,h = %d,%d,%d,%d\n", r.x, r.y, r.w, r.h);
-	eyemsg_printf("Current Good Fractal Region = %d", getRegionGood(randomSequenseNumbersRegionsChoice[currentSequenceNumberChoice]));
-	rect = getTransformedRect(r);
-	return rect;
+// SDL_Rect getSensationRectByLabel(){
+// 	SDL_Rect r;
+// 	SDL_Rect rect;
+// 	r.x = (Rect_Regions[getRegionGood(randomSequenseNumbersRegionsChoice[currentSequenceNumberChoice])].x -
+//              ((Rect_Sensation.w - Rect_Regions[getRegionGood(randomSequenseNumbersRegionsChoice[currentSequenceNumberChoice])].w)/2)); 
+// 	r.y = (Rect_Regions[getRegionGood(randomSequenseNumbersRegionsChoice[currentSequenceNumberChoice])].y -
+//              ((Rect_Sensation.h - Rect_Regions[getRegionGood(randomSequenseNumbersRegionsChoice[currentSequenceNumberChoice])].h)/2));
+// 	r.w = Rect_Sensation.w;
+// 	r.h = Rect_Sensation.h;
+// 	eyemsg_printf("Current Good Sensation Window x,y,w,h = %d,%d,%d,%d\n", r.x, r.y, r.w, r.h);
+// 	eyemsg_printf("Current Good Fractal Region = %d", getRegionGood(randomSequenseNumbersRegionsChoice[currentSequenceNumberChoice]));
+// 	rect = getTransformedRect(r);
+// 	return rect;
+// }
+
+SDL_Rect HT_OSRU_getSensationRectLabeled(int Label){
+        SDL_Rect r;
+        SDL_Rect rect;
+        r.x = (Rect_Regions[HT_OSRU_getRegion(randomSequenseNumbersForce[currentSequenceNumberForce])].x -
+                                 ((Rect_Sensation.w - Rect_Regions[getRegion(randomSequenseNumbersForce[currentSequenceNumberForce])].w)/2));
+        r.y = (Rect_Regions[HT_OSRU_getRegion(randomSequenseNumbersForce[currentSequenceNumberForce])].y -
+                                 ((Rect_Sensation.h - Rect_Regions[getRegion(randomSequenseNumbersForce[currentSequenceNumberForce])].h)/2));
+        r.w = Rect_Sensation.w;
+        r.h = Rect_Sensation.h;
+	eyemsg_printf("Current Sensation type: (%d, %d) Window x,y,w,h = %d,%d,%d,%d", TypeTempVar, Label, r.x, r.y, r.w, r.h);
+        rect = getTransformedRect(r);
+        return rect;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
