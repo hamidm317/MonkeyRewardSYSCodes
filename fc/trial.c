@@ -400,11 +400,26 @@ int simple_recording_trial()
 				eyemsg_printf("FractFix Enter\n");
 				drawFixationWindow(Color_Fixation_Window_Hold);
 				if (currentExperimentType == Experiment_Type_Choice){
-					drawSensationWindowGood();
-					drawSensationWindowBad();
+					if (APP_VER == 0)
+					{
+						drawSensationWindowGood();
+						drawSensationWindowBad();
+					}
+					else if (APP_VER == 1)
+					{
+						
+					}
 				}
 				else if (currentExperimentType == Experiment_Type_Force){
 					drawSensationWindow();
+					if (APP_VER == 0)
+					{
+						drawSensationWindow();
+					}
+					else if (APP_VER == 1)
+					{
+						
+					}
 				}
 				gotoStatePhase(State_Phase_Inside);
 			}
@@ -452,13 +467,34 @@ int simple_recording_trial()
 				eyemsg_printf("FractOverlap Enter\n");
 				drawFixationWindow(Color_Fixation_Window_Hold);
 				if (currentExperimentType == Experiment_Type_Choice){
-					drawSensationWindowGood();
-					drawSensationWindowBad();
-					drawFracts();
+					// drawSensationWindowGood();
+					// drawSensationWindowBad();
+					// drawFracts();
+
+					if (APP_VER == 0)
+					{
+						drawSensationWindowGood();
+						drawSensationWindowBad();
+						drawFracts();
+					}
+					else if (APP_VER == 1)
+					{
+						
+					}
 				}
 				else if (currentExperimentType == Experiment_Type_Force){
-					drawSensationWindow();
-					drawFract();
+					// drawSensationWindow();
+					// drawFract();
+
+					if (APP_VER == 0)
+					{
+						drawSensationWindow();
+						drawFracts();
+					}
+					else if (APP_VER == 1)
+					{
+						
+					}
 				}
 				//printf("Took %d to update experimenter\n", trialStateStartTime - current_time());
 				gotoStatePhase(State_Phase_Inside);
@@ -482,7 +518,7 @@ int simple_recording_trial()
 					if(isPhotodiodeCheckOn)
 						stopPollingForPhotodiodeAck();
 				}	
-				if (isPhotodiodeCheckOn && !gotPhotodiodeAck()){
+				if (isPhotodiodeCheckOn && !gotPhotodiodeAck() && APP_VER == 0){
                                         //printf("inside photodiode check on\n");
 										printf("inited ack before = %d\n", initedPhotodiodeAck);
                                         if (!initedPhotodiodeAck){
@@ -505,12 +541,15 @@ int simple_recording_trial()
 					sendEventToNeuralData(CODES_CHOICE_GOOD_STIM_ONSET[getRegionGood(randomSequenseNumbersRegionsChoice[currentSequenceNumberChoice])]);
 				}
 				else if (currentExperimentType == Experiment_Type_Force){
-					if (getFractal(randomSequenseNumbersForce[currentSequenceNumberForce]) < 4){
-							sendEventToNeuralData(CODES_FORCE_GOOD_STIM_ONSET[getRegion(randomSequenseNumbersForce[currentSequenceNumberForce])]);
-						}
-						else {
-							sendEventToNeuralData(CODES_FORCE_BAD_STIM_ONSET[getRegion(randomSequenseNumbersForce[currentSequenceNumberForce])]);
-						}
+					if (APP_VER = 0)
+					{
+						if (getFractal(randomSequenseNumbersForce[currentSequenceNumberForce]) < 4){
+								sendEventToNeuralData(CODES_FORCE_GOOD_STIM_ONSET[getRegion(randomSequenseNumbersForce[currentSequenceNumberForce])]);
+							}
+							else {
+								sendEventToNeuralData(CODES_FORCE_BAD_STIM_ONSET[getRegion(randomSequenseNumbersForce[currentSequenceNumberForce])]);
+							}
+					}
 				}
 
                                         stopPollingForPhotodiodeAck();
@@ -559,13 +598,34 @@ int simple_recording_trial()
 				eyemsg_printf("WaitSaccade Enter\n");
 				eraseFixation();
 				if (currentExperimentType == Experiment_Type_Choice){
-					drawSensationWindowGood();
-					drawSensationWindowBad();
-					drawFracts();
+					// drawSensationWindowGood();
+					// drawSensationWindowBad();
+					// drawFracts();
+
+					if (APP_VER == 0)
+					{
+						drawSensationWindowGood();
+						drawSensationWindowBad();
+						drawFracts();
+					}
+					else if (APP_VER == 1)
+					{
+						
+					}
 				}
 				else if (currentExperimentType == Experiment_Type_Force){
-					drawSensationWindow();
-					drawFract();
+					// drawSensationWindow();
+					// drawFract();
+
+					if (APP_VER == 0)
+					{
+						drawSensationWindow();
+						drawFracts();
+					}
+					else if (APP_VER == 1)
+					{
+						
+					}
 				}
 				gotoStatePhase(State_Phase_Inside);
 			}
@@ -578,7 +638,7 @@ int simple_recording_trial()
 					prepareFrameMonkey();
 					//isNextFramePreparedMonkey = 1;
 				}
-				if (hasLookedIntoSensationWindow()){
+				if (hasLookedIntoSensationWindow() && APP_VER == 0){
 					printf("Got out for saccade");
 					eyemsg_printf("Got out for saccade");
 					
@@ -633,13 +693,34 @@ int simple_recording_trial()
 				
 				eraseFixation();
 				if (currentExperimentType == Experiment_Type_Choice){
-					drawSensationWindowGood();
-					drawSensationWindowBad();
-					drawFracts();
+					// drawSensationWindowGood();
+					// drawSensationWindowBad();
+					// drawFracts();
+
+					if (APP_VER == 0)
+					{
+						drawSensationWindowGood();
+						drawSensationWindowBad();
+						drawFracts();
+					}
+					else if (APP_VER == 1)
+					{
+						
+					}
 				}
 				else if (currentExperimentType == Experiment_Type_Force){
-					drawSensationWindow();
-					drawFract();
+					// drawSensationWindow();
+					// drawFract();
+
+					if (APP_VER == 0)
+					{
+						drawSensationWindow();
+						drawFracts();
+					}
+					else if (APP_VER == 1)
+					{
+						
+					}
 				}
 				gotoStatePhase(State_Phase_Inside);
 			}
@@ -692,7 +773,7 @@ int simple_recording_trial()
 				printf("Result Enter\n");
 				eyemsg_printf("Result Enter\n");
 				printf("Gaze Result From Result Enter: %s\n", (gazeFractFixResult == Gaze_Fract_Fix_Result_KeptGaze) ? "Kept" : ((gazeFractFixResult == Gaze_Fract_Fix_Result_Broke) ? "Broke" : "Undet"));
-				if (hasKeptFractFixaton()){
+				if (hasKeptFractFixaton() && APP_VER == 0){
 					drawFixationWindow(Color_Fixation_Window_Success);
 					//printf("Set batch 0\n");
 					//eyemsg_printf("Set batch 0\n");
@@ -1951,14 +2032,14 @@ int reloadConf(){
 
 		}
 
-		// if (strstr(str, "APP_VER") != NULL)
-		// {
+		if (strstr(str, "APP_VER") != NULL)
+		{
 
-		// 	int parsedInt;
-		// 	parsedInt = atoi(strstr(str, "="));
-		// 	APP_VER = parsedInt;
+			int parsedInt;
+			parsedInt = atoi(strstr(str, "="));
+			APP_VER = parsedInt;
 
-		// }
+		}
 
 		if (strstr(str, "AsAdmin") != NULL)
 		{

@@ -301,3 +301,6 @@ void getPhotodiodeAck();
 void sendEventToNeuralData(char *msg);
 void initgetPhotodiodeAck();
 void stopPollingForPhotodiodeAck();
+
+int APP_VER;
+int numberOfFractPerTrial;
