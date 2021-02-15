@@ -1,0 +1,26 @@
+Force + Choice Config
+iti=2000
+gazewait=3000
+fixfix=100
+randomOverlap=1
+overlapMin=300
+overlapMax=500
+overlap=200
+sacwait=10000
+fractfix=800
+EccentricityDegree=10
+FractalSizeDegree=4
+FixationWindowDegree=7
+SensationWindowDegree=6
+RegionOverride=0
+PhotodiodeCheck=1
+GazeXOffset=0
+GazeYOffset=0
+numberOfFractPerTrial = 5
+APP_VER = 1
+AsAdmin = 0
+randomSequenseNumbersChoice = 40
+randomSequenseNumbersRegionsChoice = 40
+randomSequenseNumbersForce = 60
+
+///////////////////////////////////////
