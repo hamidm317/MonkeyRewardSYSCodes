@@ -133,6 +133,10 @@ ALLF_DATA evt;			/* buffer to hold sample and event data*/
 
 struct trialStateStruct trialStates[Trial_State_Len];
 
+///////////////// UbHTOs ///////////////////
+
+int numberOfFractPerTrial = 8;
+
 int exit_eyelink()
 {
 	/* CLEANUP*/
@@ -212,7 +216,7 @@ int app_main(char * trackerip, DISPLAYINFO * disp)
 		return -1;
 	}
 		int displays = SDL_GetNumVideoDisplays();
-
+	// reloadConf();
 	//SDL_Surface* screenSurface = NULL;
 
 		
@@ -281,7 +285,7 @@ int app_main(char * trackerip, DISPLAYINFO * disp)
 
 			/*
 			SDL_Surface *srf = IMG_Load("fracts/i1000.jpeg");
-			for (int i=0; i<8; i++){
+			for (int i=0; i<numberOfFractPerTrial; i++){
 				char *str[100];
 				char *idx[10];
 				strcpy(str, "fracts/i100");
@@ -303,17 +307,17 @@ int app_main(char * trackerip, DISPLAYINFO * disp)
 			double ANGLE = M_PI_4;
 
 			for (int i=0; i<1; i++){
-				for (int j=0; j<8; j++){
-					Rect_Regions[8*i+j].w = Regions_Width;
-					Rect_Regions[8*i+j].h = Regions_Height;
-					Rect_Regions[8*i+j].x = Regions_Center_X +
+				for (int j=0; j<numberOfFractPerTrial; j++){
+					Rect_Regions[numberOfFractPerTrial*i+j].w = Regions_Width;
+					Rect_Regions[numberOfFractPerTrial*i+j].h = Regions_Height;
+					Rect_Regions[numberOfFractPerTrial*i+j].x = Regions_Center_X +
 						(i+1)* Regions_Inter_Ring_Distance * (cos(j*ANGLE + Regions_Offset* M_PI/180)) -
 						Regions_Width/2;
-					Rect_Regions[8*i+j].y = Regions_Center_Y +
+					Rect_Regions[numberOfFractPerTrial*i+j].y = Regions_Center_Y +
 						(i+1)* Regions_Inter_Ring_Distance * (sin(j*ANGLE + Regions_Offset* M_PI/180)) -
 					Regions_Height/2;
-					//printf("region[%d].x,y = %d, %d\n", (8*i+j),
-					//		Rect_Regions[8*i+j].x, Rect_Regions[8*i+j]);
+					//printf("region[%d].x,y = %d, %d\n", (numberOfFractPerTrial*i+j),
+					//		Rect_Regions[numberOfFractPerTrial*i+j].x, Rect_Regions[numberOfFractPerTrial*i+j]);
 				}
 			}
 
@@ -735,6 +739,12 @@ int parseArgs(int argc, char **argv, char **trackerip, DISPLAYINFO *disp )
 			setInputted = 1;
 		}
 
+		else if(_stricmp(argv[i],"-NOF") ==0 && argv[i+1]){
+			i++;
+			numberOfFractPerTrial = atoi(argv[i]);
+			setInputted = 1;
+		}
+
 		else{
                         //printf("\t === General ===\n");
 			//printf("\t\t -numoftrials <number of force and choice trials to pack in a batch>. currently %d \n", numberOfBatchExperiments);
@@ -759,7 +769,13 @@ int parseArgs(int argc, char **argv, char **trackerip, DISPLAYINFO *disp )
                         printf("\t\t -sucamp <amplitude of success tone>. currently %f\n", successVolume);
 			*/
 			return 1;
-		}	
+		}
+
+		/*if(_stricmp(argv[i],"-NOF") ==0 && argv[i+1]){
+			i++;
+			numberOfFractPerTrial = atoi(argv[i]);
+			setInputted = 1;
+		}*/	
 
 	}
 	if (!setInputted){
@@ -877,11 +893,11 @@ srand(time(NULL));
 void fractalLoaderFromSet(int set){
         //101 , 102
         //set -= 100;
-        int fractSetIdx = 1000 + (8 * (set - 100));
+        int fractSetIdx = 1000 + (numberOfFractPerTrial * (set - 100));
         char temp[100];
         char idxToStr[100];
 
-        for (int i=0; i<8; i++){
+        for (int i = 0; i < numberOfFractPerTrial; i++){
                 strcpy(temp, "/home/lab/Fractals/i");
                 sprintf(idxToStr, "%d", fractSetIdx + i);
                 strcat(temp, idxToStr);
