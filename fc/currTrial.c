@@ -1782,6 +1782,18 @@ int reloadConf(){
                         gazeYOffset  = (int)degToPixel(1.0*parsedDouble);
 			printf("gazeYOffset = %d\n", gazeYOffset);
                 }
+
+		//////// UbHTOs ////////
+
+		if (strstr(str, "numberOfFractPerTrial") != NULL)
+		{
+
+			int parsedInt;
+			parsedInt = atoi(strstr(str, "="));
+			numberOfFractPerTrial = parsedInt;
+
+		}
+
 	}
 	fclose(fp);
 	if (randomOverlap>0 && overlapMin>=0 && overlapMax >0){
