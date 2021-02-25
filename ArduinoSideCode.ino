@@ -84,12 +84,13 @@ void loop() {
 //    delayMicroseconds(100);
 //    if (inputString[0] == 0)
 //          chkitr = 1;
-    if (inputString[0] == 'R'){ ////// UbHTOs
+    if (inputString[0] == 'R') ////// UbHTOs ///////
+    { 
       n_o_s = inputString[chkitr+1];
       a_o_r = inputString[chkitr+2];
       
       rewardDuration = 70 + a_o_r / n_o_s * 130;
-      }
+    }
 //    Serial.println('r');
       rewardTimer = millis();    // set reward dispense start time
 //      Serial.print("rewardTimer = ");
