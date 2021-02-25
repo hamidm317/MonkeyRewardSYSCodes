@@ -238,3 +238,6 @@ void sendEventToNeuralData(char *msg);
 void initgetPhotodiodeAck();
 void stopPollingForPhotodiodeAck();
 
+/////////////////////// UbHTOs ////////////////////
+
+void print_current_time_with_ms();
