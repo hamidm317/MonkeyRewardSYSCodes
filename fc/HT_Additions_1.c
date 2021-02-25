@@ -32,34 +32,10 @@ void HT_OSRU_fractalLoaderFromSet(int set, int numberOfFractPerTrial){
         }
 }
 
-int * fractalOptLabeller(char *LabelingType, int numberOfFractPerTrial)
+int * fractalOptLabeller(int TypeTempVar, int numberOfFractPerTrial)
 {
     
     double FractalLabels[50]; // First element contains number of fractal sets, second element is type of labeling, and the last non Null element is -1 (so maximum number of sets is 47).
-
-    // types of labeling
-    char Type1[100];
-    char Type2[100];
-    char Type3[100];
-
-    strcpy(Type1, "Binary_Labeling")
-    strcpy(Type2, "Amount_Labeling")
-    strcpy(Type3, "Probable_Labeling")
-
-    int TypeTempVar;
-    TypeTempVar = 1; // set labeling type default to Binary mode
-    if (strcmp(Type1, LabelingType) == 0)
-    {
-        TypeTempVar = 1;
-    }
-    else if (strcmp(Type2, LabelingType) == 0)
-    {
-        TypeTempVar = 2;
-    }
-    else if (strcmp(Type3, LabelingType) == 0)
-    {
-        TypeTempVar = 3;
-    }
 
     FractalLabels[0] = numberOfFractPerTrial;
     FractalLabels[1] = TypeTempVar;
@@ -129,7 +105,7 @@ void Rewarder(double FractLabel, int Type)
 
 }
 
-void RewardSender(RewardAmount)
+void RewardSender(RewardAmount) // a message for eyelink should be sent and a message for Arduino
 {
 
     

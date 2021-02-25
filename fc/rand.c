@@ -23,3 +23,11 @@ int tempNums[len];
 		    *(p++) = tempNums[i];
 		}
 }
+
+double RandGenerator()
+{
+
+    srand(time(NULL))
+    return (double)rand() / (double)RAND_MAX;
+
+}

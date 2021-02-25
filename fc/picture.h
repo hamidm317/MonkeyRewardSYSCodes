@@ -302,5 +302,37 @@ void sendEventToNeuralData(char *msg);
 void initgetPhotodiodeAck();
 void stopPollingForPhotodiodeAck();
 
+// UbHTOs
+// variables
+
+void labelRanging;
+
 int APP_VER;
 int numberOfFractPerTrial;
+int Sequence_Length;
+int GOOD_REWARD;
+int BAD_REWARD;
+int TypeTempVar;
+
+double FractalLabels[50];
+
+int ProbablisticModeSTPoint;
+int ProbablisticModeLen;
+
+int AmountModeSTPoint;
+int AmountModeLen;
+
+int BinaryModeSTPoint;
+int BinaryModeLen;
+
+int rewardValue;
+
+int n_o_s;
+int a_o_r;
+
+// functions 
+
+void labelRanging();
+void HT_OSRU_fractalLoaderFromSet(int set, int numberOfFractPerTrial);
+void fractalOptLabeller(int *FractalLabels, int TypeTempVar, int numberOfFractPerTrial);
+void HT_OSRU_TypeVar();

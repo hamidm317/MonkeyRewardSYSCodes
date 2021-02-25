@@ -43,6 +43,14 @@ unsigned long rewardTimer = 0;      // keep track of time since reward dispense 
 unsigned long mesgTimer = 0;       // keep track of time since message on pins start
 unsigned int mesgCounter = 0;      // keep track of times a message went on pins
 unsigned int rewardDuration = 0;   // duration of reward command
+
+///////////////////////// UbHTOs /////////////
+
+unsigned int n_o_s = 2; // number of states that monkey may get reward
+unsigned int a_o_r = 0; // state that monkey give reward in Rewarding message
+
+//////////////////////////////////////////////
+
 //unsigned int daleyMeasureTimer = 0;
 
 void setup() {
@@ -76,17 +84,11 @@ void loop() {
 //    delayMicroseconds(100);
 //    if (inputString[0] == 0)
 //          chkitr = 1;
-    if (inputString[0] == 'R'){
-      switch (inputString[chkitr+1]){
-        case 'S':
-          rewardDuration = 70;
-          break;
-        case 'M':
-          rewardDuration = 100;
-          break;
-        case 'L':
-          rewardDuration = 200;
-          break;
+    if (inputString[0] == 'R'){ ////// UbHTOs
+      n_o_s = inputString[chkitr+1];
+      a_o_r = inputString[chkitr+2];
+      
+      rewardDuration = 70 + a_o_r / n_o_s * 130;
       }
 //    Serial.println('r');
       rewardTimer = millis();    // set reward dispense start time

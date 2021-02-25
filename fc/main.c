@@ -131,7 +131,25 @@ int loadFromConf;
 ////////////////////////////////////// UpDaTeS By HT_OSRU //////////////////////////////////////////
 
 int APP_VER = 0;
-int numberOfFractPerTrial = 0;
+int numberOfFractPerTrial = 5;
+
+int ProbablisticModeSTPoint = 300;
+int ProbablisticModeLen = 100;
+
+int AmountModeSTPoint = 200;
+int AmountModeLen = 100;
+
+int BinaryModeSTPoint = 120;
+int BinaryModeLen = 80;
+
+int ForceSequenceLen = 64; //// Should be changed in Configuration file
+int ChoiceSequenceLen = 16;
+int RegionsChoiceSequenceLen = 16;
+
+double FractalLabels[50];
+
+int n_o_s;
+int a_o_r;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -168,6 +186,29 @@ int end_expt(char * our_file_name)
 	return exit_eyelink();
 }
 
+void labelRanging(int set)
+{
+    if (set > BinaryModeSTPoint && set =< BinaryModeSTPoint + BinaryModeLen)
+    {
+        strcpy(LabelingType, "Binary_Labeling")
+    }
+    else
+    {
+        if (set > AmountModeSTPoint && set =< AmountModeSTPoint + AmountModeLen)
+        {
+            strcpy(LabelingType, "Amount_Labeling")
+        }
+        else
+        {
+            if (set > ProbablisticModeSTPoint && set =< ProbablisticModeSTPoint + ProbablisticModeLen)
+            {
+                strcpy(LabelingType, "Probable_Labeling")
+            }
+        }
+        
+    }
+    
+}
 
 int get_tracker_sw_version(char* verstr)
 {
@@ -191,6 +232,12 @@ int app_main(char * trackerip, DISPLAYINFO * disp)
     int eyelink_ver = 0;
     int tracker_software_ver = 0;
 	char *vd = NULL;
+
+	if (APP_VER == 1) ////////////// UbHTOs
+	{
+		labelRanging();
+		HT_OSRU_TypeVar();
+	}
 
 	vd = getenv("SDL_VIDEODRIVER");
 	if (vd)
@@ -315,22 +362,41 @@ int app_main(char * trackerip, DISPLAYINFO * disp)
 			Regions_Center_X = bound3.w/2;
 			Regions_Center_Y = bound3.h/2;
 			double ANGLE = M_PI_4;
-
-			for (int i=0; i<1; i++){
-				for (int j=0; j<8; j++){
-					Rect_Regions[8*i+j].w = Regions_Width;
-					Rect_Regions[8*i+j].h = Regions_Height;
-					Rect_Regions[8*i+j].x = Regions_Center_X +
-						(i+1)* Regions_Inter_Ring_Distance * (cos(j*ANGLE + Regions_Offset* M_PI/180)) -
-						Regions_Width/2;
-					Rect_Regions[8*i+j].y = Regions_Center_Y +
-						(i+1)* Regions_Inter_Ring_Distance * (sin(j*ANGLE + Regions_Offset* M_PI/180)) -
-					Regions_Height/2;
-					//printf("region[%d].x,y = %d, %d\n", (8*i+j),
-					//		Rect_Regions[8*i+j].x, Rect_Regions[8*i+j]);
+			if (APP_VER == 0)
+			{
+				for (int i=0; i<1; i++){
+					for (int j=0; j<8; j++){
+						Rect_Regions[8*i+j].w = Regions_Width;
+						Rect_Regions[8*i+j].h = Regions_Height;
+						Rect_Regions[8*i+j].x = Regions_Center_X +
+							(i+1)* Regions_Inter_Ring_Distance * (cos(j*ANGLE + Regions_Offset* M_PI/180)) -
+							Regions_Width/2;
+						Rect_Regions[8*i+j].y = Regions_Center_Y +
+							(i+1)* Regions_Inter_Ring_Distance * (sin(j*ANGLE + Regions_Offset* M_PI/180)) -
+						Regions_Height/2;
+						//printf("region[%d].x,y = %d, %d\n", (8*i+j),
+						//		Rect_Regions[8*i+j].x, Rect_Regions[8*i+j]);
+					}
 				}
 			}
 
+			if (APP_VER == 1)
+			{
+				for (int i = 0; i < 1; i++){
+					for (int j = 0; j < numberOfFractPerTrial; j++){
+						Rect_Regions[numberOfFractPerTrial * i + j].w = Regions_Width;
+						Rect_Regions[numberOfFractPerTrial * i + j].h = Regions_Height;
+						Rect_Regions[numberOfFractPerTrial * i + j].x = Regions_Center_X +
+							(i+1)* Regions_Inter_Ring_Distance * (cos(j*ANGLE + Regions_Offset* M_PI/180)) -
+							Regions_Width/2;
+						Rect_Regions[numberOfFractPerTrial * i + j].y = Regions_Center_Y +
+							(i+1)* Regions_Inter_Ring_Distance * (sin(j*ANGLE + Regions_Offset* M_PI/180)) -
+						Regions_Height/2;
+						//printf("region[%d].x,y = %d, %d\n", (8*i+j),
+						//		Rect_Regions[8*i+j].x, Rect_Regions[8*i+j]);
+					}
+				}
+			}
 			//int randtemp[32];
 			//randGen(32, randtemp, 1);
 			//memcpy(randomSequenseNumbers, randtemp, 16*sizeof(int));
@@ -339,9 +405,9 @@ int app_main(char * trackerip, DISPLAYINFO * disp)
 			//	randomSequenseNumbers[i] %= 16;
 			//	randomSequenseNumbersRegions[i] %= 16;
 			//}
-			randGen(numberOfFractPerTrial * numberOfFractPerTrial, randomSequenseNumbersForce,1);
-			randGen(numberOfFractPerTrial * 2, randomSequenseNumbersChoice,1);
-			randGen(numberOfFractPerTrial * 2, randomSequenseNumbersRegionsChoice,1);
+			randGen(ّForceSequenceLen, randomSequenseNumbersForce,1);
+			randGen(ChoiceSequenceLen, randomSequenseNumbersChoice,1);
+			randGen(RegionsChoiceSequenceLen, randomSequenseNumbersRegionsChoice,1);
 			
 			//for (int i=0; i<64; i++)
 			//	printf("Rand[%d] = %d\n", i, randomSequenseNumbers[i]);
@@ -379,7 +445,7 @@ int app_main(char * trackerip, DISPLAYINFO * disp)
 			//printf( "End of else\n");
 		}
 
-	
+
 
 
 //*
@@ -547,7 +613,7 @@ int app_main(char * trackerip, DISPLAYINFO * disp)
 
 	/* SET UP TRACKER CONFIGURATION */
 	/* set parser saccade thresholds (conservative settings) */
-  if(eyelink_ver>=2)
+  if(eyelink_ver >= 2)
     {
       eyecmd_printf("select_parser_configuration 0");  // 0 = standard sensitivity
 	  if(eyelink_ver == 2) //turn off scenelink camera stuff
@@ -618,11 +684,11 @@ void clear_full_screen_window(SDL_Color c)
 
 int parseArgs(int argc, char **argv, char **trackerip, DISPLAYINFO *disp )
 {
-	int i =0;
+	int i = 0;
 	int displayset =0;
 	memset(disp,0,sizeof(DISPLAYINFO));
 	int setInputted = 0;
-	for( i =1; i < argc; i++)
+	for( i = 1; i < argc; i++)
 	{
 		/*
 		if(_stricmp(argv[i],"-tracker") ==0 && argv[i+1])
@@ -787,7 +853,8 @@ int PASCAL WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 /* non windows application or win32 console application. */
 int main(int argc, char ** argv)
 {
-srand(time(NULL));
+	
+	srand(time(NULL));
 	DISPLAYINFO disp;
 	char *trackerip = NULL;
 	
@@ -856,10 +923,11 @@ srand(time(NULL));
                 portname = "/dev/ttyACM1";
                 fd = open (portname, O_RDWR | O_NOCTTY | O_SYNC);
                 if (fd < 0)
-                 {
-                        printf ("error %d opening %s: %s", errno, portname, strerror (errno));
-                        return;
-                 }
+                {
+                    printf ("error %d opening %s: %s", errno, portname, strerror (errno));
+                    return;
+                }
+
         }
 
 	if(rv) return rv;
@@ -880,6 +948,7 @@ srand(time(NULL));
 
 	return 0;
 }
+
 #endif
 
 void fractalLoaderFromSet(int set){
@@ -905,14 +974,14 @@ void fractalLoaderFromSet(int set){
 
 ////////////////////////////////////////////////// UpDaTeS bY HT_OSRU //////////////////////////////////////////////////////
 
-void HT_OSRU_fractalLoaderFromSet(int set, int numberOfFractsPerTrial){
+void HT_OSRU_fractalLoaderFromSet(int set, int numberOfFractPerTrial){
         //101 , 102
         //set -= 100;
-        int fractSetIdx = 1000 + (numberOfFractsPerTrial * (set - 100));
+        int fractSetIdx = 1000 + (numberOfFractPerTrial * (set - 100));
         char temp[100];
         char idxToStr[100];
 
-        for (int i = 0; i < numberOfFractsPerTrial; i++){
+        for (int i = 0; i < numberOfFractPerTrial; i++){
                 strcpy(temp, "/home/lab/Fractals/i");
                 sprintf(idxToStr, "%d", fractSetIdx + i);
                 strcat(temp, idxToStr);
@@ -945,3 +1014,39 @@ void HT_OSRU_fractalLoaderFromSet(int set, int numberOfFractsPerTrial){
 
 */
 
+void fractalOptLabeller(int *FractalLabels, int TypeTempVar, int numberOfFractPerTrial)
+{
+    
+    // double FractalLabels[50]; // First element contains number of fractal sets, second element is type of labeling, and the last non Null element is -1 (so maximum number of sets is 47).
+
+    FractalLabels[0] = numberOfFractPerTrial;
+    FractalLabels[1] = TypeTempVar;
+    FractalLabels[numberOfFractPerTrial] = -1;
+
+    switch (TypeTempVar)
+    {
+        case 1: //Type is Binary Labeling and we set "Good" to first half and "Bad" to the others.
+            for(int i = 0; i < numberOfFractPerTrial ; i++)
+            {
+                FractalLabels[i + 2] = (i < numberOfFractPerTrial / 2) ? 1 : 0;
+            }
+            break;
+
+        case 2: //Type is amount labeling and we set a range of 0 to 100 for this labels.
+            for(int i = 0; i < numberOfFractPerTrial ; i++)
+            {
+                FractalLabels[i + 2] = i;
+            }
+            break;
+
+        case 3: //Type is probable labeling and we set a range of 0 to 100 for this labels. (Difference of this part and previous part is in rewarding part)
+            for(int i = 0; i < numberOfFractPerTrial ; i++)
+            {
+                FractalLabels[i + 2] = i;
+            }
+            break;
+        default:;
+            break;
+    }
+    
+}

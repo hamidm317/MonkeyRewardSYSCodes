@@ -54,12 +54,42 @@ int gazeXOffset = 0;
 int gazeYOffset = 0;
 int fractSetToLoad;
 
-int numberOfFractsPerTrial = 5;
+int numberOfFractPerTrial = 5;
 int AsAdmin = 0;
 int TypeTempVar = 1;
 int currentLabel = 0;
+int Sequence_Length;
 
+int ProbablisticModeSTPoint = 300;
+int ProbablisticModeLen = 100;
+
+int AmountModeSTPoint = 200;
+int AmountModeLen = 100;
+
+int BinaryModeSTPoint = 120;
+int BinaryModeLen = 80;
+
+int GOOD_REWARD = 100;
+int BAD_REWARD = 0;
+
+int GOOD = 1;
+int BAD = 0;
+
+int thr = numberOfFractPerTrial / 2;
+int rewardValue = 1;
 char LabelingType[20];
+
+int Fractal_Good_Label;
+int Fractal_Bad_Label;
+int Fractal_Label;
+
+
+int n_o_s;
+int a_o_r;
+
+int curr_Fract_Label;
+int curr_Bad_Fract_Label;
+int curr_Good_Fract_Label;
 
 // types of labeling
 char Type1[100];
@@ -69,8 +99,6 @@ char Type3[100];
 strcpy(Type1, "Binary_Labeling")
 strcpy(Type2, "Amount_Labeling")
 strcpy(Type3, "Probable_Labeling")
-
-
 
 
 /***************************** PERFORM AN EXPERIMENTAL TRIAL  ***************/
@@ -231,6 +259,11 @@ int simple_recording_trial()
 	drawGrid();
 	reloadConf();
 
+	if (APP_VER == 1) /// UbHTOs
+	{
+		labelRanging();
+	}
+
    /* 
 	  we don't use getkey() especially in a time-critical trial
       as operating system may interrupt us and cause an unpredicatable delay
@@ -258,6 +291,9 @@ int simple_recording_trial()
 		end_trial();
 		break;
 	  }
+
+		currTempLabel();
+
 	  if(break_pressed())
 		{
 			end_trial();         /* local function to stop recording */
@@ -291,9 +327,9 @@ int simple_recording_trial()
 		  {
 		  	printf("Reached the beginning of new experiment batch");
 			writeToEyelink("Reached new batch");
-			randomNumberExperimentType = rand()%numberOfBatchExperiments;
+			randomNumberExperimentType = rand() % numberOfBatchExperiments;
 			printf("Trial number %d in this batch of %d experiments will be choice",
-				       	randomNumberExperimentType+1, numberOfBatchExperiments);
+				       	randomNumberExperimentType + 1, numberOfBatchExperiments);
 			eyemsg_printf("Trial number %d in this batch of %d experiments will be choice", randomNumberExperimentType+1, numberOfBatchExperiments);
 		  }
 		  if (currentSequenceNumber%numberOfBatchExperiments == randomNumberExperimentType){
@@ -407,18 +443,18 @@ int simple_recording_trial()
 					}
 					else if (APP_VER == 1)
 					{
-						
+						HT_OSRU_drawSensationWindowLabeled(GOOD);
+						HT_OSRU_drawSensationWindowLabeled(BAD);
 					}
 				}
 				else if (currentExperimentType == Experiment_Type_Force){
-					drawSensationWindow();
 					if (APP_VER == 0)
 					{
 						drawSensationWindow();
 					}
 					else if (APP_VER == 1)
 					{
-						
+						drawSensationWindow();
 					}
 				}
 				gotoStatePhase(State_Phase_Inside);
@@ -479,7 +515,9 @@ int simple_recording_trial()
 					}
 					else if (APP_VER == 1)
 					{
-						
+						HT_OSRU_drawSensationWindowLabeled(GOOD);
+						HT_OSRU_drawSensationWindowLabeled(BAD);
+						drawFracts();
 					}
 				}
 				else if (currentExperimentType == Experiment_Type_Force){
@@ -494,6 +532,8 @@ int simple_recording_trial()
 					else if (APP_VER == 1)
 					{
 						
+						HT_OSRU_drawSensationWindowLabeled();
+						HT_OSRU_drawFracts();
 					}
 				}
 				//printf("Took %d to update experimenter\n", trialStateStartTime - current_time());
@@ -517,8 +557,9 @@ int simple_recording_trial()
 					gotoStatePhase(State_Phase_Exit);
 					if(isPhotodiodeCheckOn)
 						stopPollingForPhotodiodeAck();
-				}	
-				if (isPhotodiodeCheckOn && !gotPhotodiodeAck() && APP_VER == 0){
+				}
+
+				if (isPhotodiodeCheckOn && !gotPhotodiodeAck() && APP_VER == 0){ 
                                         //printf("inside photodiode check on\n");
 										printf("inited ack before = %d\n", initedPhotodiodeAck);
                                         if (!initedPhotodiodeAck){
@@ -543,7 +584,7 @@ int simple_recording_trial()
 				else if (currentExperimentType == Experiment_Type_Force){
 					if (APP_VER = 0)
 					{
-						if (getFractal(randomSequenseNumbersForce[currentSequenceNumberForce]) < 4){
+						if (getFractal(randomSequenseNumbersForce[currentSequenceNumberForce]) < thr){
 								sendEventToNeuralData(CODES_FORCE_GOOD_STIM_ONSET[getRegion(randomSequenseNumbersForce[currentSequenceNumberForce])]);
 							}
 							else {
@@ -551,6 +592,41 @@ int simple_recording_trial()
 							}
 					}
 				}
+
+				// if (isPhotodiodeCheckOn && !gotPhotodiodeAck() && APP_VER == 1){ // Should be revised
+                //                         //printf("inside photodiode check on\n");
+				// 						printf("inited ack before = %d\n", initedPhotodiodeAck);
+                //                         if (!initedPhotodiodeAck){
+                //                                 initgetPhotodiodeAck();
+				// 								//printf("Took %d to init photodiode ack\n",current_time() - trialStateStartTime);
+                //                         }
+				// 						printf("inited ack after = %d\n", initedPhotodiodeAck);
+                //                         //printf("got back from init ack photodiode\n");
+				// 						printf("!gotAck() = %d, !timeout() = %d", !gotPhotodiodeAck(),!timedOut());
+                //                         while (!gotPhotodiodeAck() && !timedOut()){
+                //                                 //initgetPhotodiodeAck();
+                //                                 //getPhotodiodeAckAndSendEvent(CODES_FORCE_STIM_ONSET[getRegion(randomSequenseNumbers[currentSequenceNumber])]);
+                //                         //printf("inside while");
+                //                                 getPhotodiodeAck();
+				// 								//printf("Took %d to get photodiode ack\n",current_time() - trialStateStartTime);
+                //                         }
+                //                         //printf("\noutside while\n");
+                //                         if (gotPhotodiodeAck()){
+				// if (currentExperimentType == Experiment_Type_Choice){
+				// 	sendEventToNeuralData(CODES_CHOICE_GOOD_STIM_ONSET[getRegionGood(randomSequenseNumbersRegionsChoice[currentSequenceNumberChoice])]);
+				// }
+				// else if (currentExperimentType == Experiment_Type_Force){
+				// 	if (APP_VER = 1)
+				// 	{
+				// 		if (getFractal(randomSequenseNumbersForce[currentSequenceNumberForce]) < thr){
+				// 				sendEventToNeuralData(CODES_FORCE_GOOD_STIM_ONSET[getRegion(randomSequenseNumbersForce[currentSequenceNumberForce])]);
+				// 			}
+				// 			else {
+				// 				sendEventToNeuralData(CODES_FORCE_BAD_STIM_ONSET[getRegion(randomSequenseNumbersForce[currentSequenceNumberForce])]);
+				// 			}
+				// 	}
+				// }
+
 
                                         stopPollingForPhotodiodeAck();
                                         }
@@ -610,7 +686,9 @@ int simple_recording_trial()
 					}
 					else if (APP_VER == 1)
 					{
-						
+						HT_OSRU_drawSensationWindowLabeled(GOOD);
+						HT_OSRU_drawSensationWindowLabeled(BAD);
+						HT_OSRU_drawFracts();
 					}
 				}
 				else if (currentExperimentType == Experiment_Type_Force){
@@ -624,7 +702,8 @@ int simple_recording_trial()
 					}
 					else if (APP_VER == 1)
 					{
-						
+						HT_OSRU_drawSensationWindowLabeled();
+						HT_OSRU_drawFracts();
 					}
 				}
 				gotoStatePhase(State_Phase_Inside);
@@ -651,7 +730,7 @@ int simple_recording_trial()
 						}
 					}
 					else if (currentExperimentType == Experiment_Type_Force){
-						if (getFractal(randomSequenseNumbersForce[currentSequenceNumberForce]) < 4){
+						if (getFractal(randomSequenseNumbersForce[currentSequenceNumberForce]) < thr){
                         	sendEventToNeuralData(CODES_FORCE_GOOD_SACC_ONSET[getRegion(randomSequenseNumbersForce[currentSequenceNumberForce])]);
 						}
                     	else {
@@ -662,7 +741,34 @@ int simple_recording_trial()
 					}
 
 					gotoStatePhase(State_Phase_Exit);
-				}	
+				}
+
+				/* if (hasLookedIntoSensationWindow() && APP_VER == 1){ // Should Be Revised
+					printf("Got out for saccade");
+					eyemsg_printf("Got out for saccade");
+					
+					if (currentExperimentType == Experiment_Type_Choice){
+						if (monkeyFractGazeState == Monkey_Fract_Gaze_State_HasLookedInsideSensationWindowGood){
+							sendEventToNeuralData(CODES_CHOICE_GOOD_SACC_ONSET[getRegionByLabel(randomSequenseNumbersRegionsChoice[currentSequenceNumberChoice], GOOD)]);
+						}
+						else if (monkeyFractGazeState == Monkey_Fract_Gaze_State_HasLookedInsideSensationWindowBad){
+							sendEventToNeuralData(CODES_CHOICE_BAD_SACC_ONSET[getRegionByLabel(randomSequenseNumbersRegionsChoice[currentSequenceNumberChoice], BAD)]);
+						}
+					}
+					else if (currentExperimentType == Experiment_Type_Force){
+						if (){
+                        	sendEventToNeuralData(CODES_FORCE_GOOD_SACC_ONSET[getRegion(randomSequenseNumbersForce[currentSequenceNumberForce])]);
+						}
+                    	else {
+                    	    sendEventToNeuralData(CODES_FORCE_BAD_SACC_ONSET[getRegion(randomSequenseNumbersForce
+[currentSequenceNumberForce])]);
+						}
+
+					}
+
+					gotoStatePhase(State_Phase_Exit);
+				} */
+
 				if (timedOut()){
 					printf("Got out for timeout");
 					eyemsg_printf("Got out for timeout");
@@ -705,7 +811,9 @@ int simple_recording_trial()
 					}
 					else if (APP_VER == 1)
 					{
-						
+						HT_OSRU_drawSensationWindowLabeled(GOOD);
+						HT_OSRU_drawSensationWindowLabeled(BAD);
+						HT_OSRU_drawFracts();
 					}
 				}
 				else if (currentExperimentType == Experiment_Type_Force){
@@ -719,7 +827,8 @@ int simple_recording_trial()
 					}
 					else if (APP_VER == 1)
 					{
-						
+						HT_OSRU_drawSensationWindowLabeled();
+						HT_OSRU_drawFracts();
 					}
 				}
 				gotoStatePhase(State_Phase_Inside);
@@ -803,6 +912,53 @@ int simple_recording_trial()
 					//eyelink event
 					//blackrock event
 				}
+
+				if (hasKeptFractFixaton() && APP_VER == 1){
+					drawFixationWindow(Color_Fixation_Window_Success);
+					//printf("Set batch 0\n");
+					//eyemsg_printf("Set batch 0\n");
+					isRedo = 0;
+					// if ((currentExperimentType == Experiment_Type_Force && getFractal(randomSequenseNumbersForce[currentSequenceNumberForce]) < 4) ||
+					//     (currentExperimentType == Experiment_Type_Choice && hasChosenGoodFract())){
+					// 	if (currentExperimentType == Experiment_Type_Choice && hasChosenGoodFract())
+					// 		currentGoodFractChoices++;
+					// 	printf("\n\n\ninside Reward big\n\n\n");
+                    //     //write(fd, "RL\n", 3);
+					// 	// sendBigReward();
+					// 	sendEventToNeuralData(CODES_REWARD_LARGE);
+					// 	writeToEyelink("Good Fractal Reward Delivered");
+					// 	C_
+					// }
+					// else if ((currentExperimentType == Experiment_Type_Force && getFractal(randomSequenseNumbersForce[currentSequenceNumberForce]) < 8) ||
+					// 	 (currentExperimentType == Experiment_Type_Choice && hasChosenBadFract())){
+					// 	printf("\n\n\ninside Reward small\n\n\n");
+                    //     //write(fd, "RS\n", 3);
+					// 	sendSmallReward();
+					// 	sendEventToNeuralData(CODES_REWARD_SMALL);
+					// 	writeToEyelink("Bad Fractal Reward Delivered");
+					// }
+
+					if (currentExperimentType == Experiment_Type_Choice) // Mikhahim Touri konim ke dar yek Var malum shavad ke bayad che rewardy dade shavad, moshabehe bala piade shavad yahtamel
+					{
+						if (hasChosenBadFract())
+							rewardValue = curr_Bad_Fract_Label;
+						if (hasChosenGoodFract())
+							rewardValue = curr_Good_Fract_Label;
+					}
+
+					if (currentExperimentType == Experiment_Type_Force)
+					{
+						rewardValue = curr_Fract_Label;
+					}
+
+					Rewarder(rewardValue);
+					playSuccess();
+					//sound
+					//reward
+					//eyelink event
+					//blackrock event
+				}
+
 				else if (!hasKeptFractFixaton()){
 					drawFixationWindow(Color_Fixation_Window_Error);
 					playError();
@@ -1016,8 +1172,36 @@ void drawSensationWindow(){
         r = getSensationRect();
 	r_msg = getUntransformedRect(r);
 	eyemsg_printf("Sensation Window Rect x,y,w,h = %d,%d,%d,%d", r_msg.x, r_msg.y, r_msg.w, r_msg.h);
-	eyemsg_printf("Fractal Type = %s", (getFractal(randomSequenseNumbersForce[currentSequenceNumberForce]) < 4) ? "Good" : "Bad");
-        c = (getFractal(randomSequenseNumbersForce[currentSequenceNumberForce]) < 4) ? Color_Fixation_Window_Success : Color_Fixation_Window_Error;
+	eyemsg_printf("Fractal Type = %s", (getFractal(randomSequenseNumbersForce[currentSequenceNumberForce]) < thr) ? "Good" : "Bad");
+        c = (getFractal(randomSequenseNumbersForce[currentSequenceNumberForce]) < thr) ? Color_Fixation_Window_Success : Color_Fixation_Window_Error;
+        /*
+        r.x = (Rect_Regions[getRegion(randomSequenseNumbers[currentSequenceNumber])].x -
+                                 ((Rect_Sensation.w - Rect_Regions[getRegion(randomSequenseNumbers[currentSequenceNumber])].w)/2));
+        r.y = (Rect_Regions[getRegion(randomSequenseNumbers[currentSequenceNumber])].y -
+                                 ((Rect_Sensation.h - Rect_Regions[getRegion(randomSequenseNumbers[currentSequenceNumber])].h)/2));
+        //r.x = Rect_Regions[getRegion(randomSequenseNumbers[currentSequenceNumber])].x - ((Rect_Sensation.w - Rect_Regions[getRegion(randomSequenseNumbers[currentSequenceNumber])].w)/2);
+        //r.y = Rect_Regions[getRegion(randomSequenseNumbers[currentSequenceNumber])].y - ((Rect_Sensation.h - Rect_Regions[getRegion(randomSequenseNumbers[currentSequenceNumber])].h)/2);
+        r.w = Rect_Sensation.w;
+        r.h = Rect_Sensation.h;
+        */
+        SDL_SetRenderTarget(renderer2, Texture_Sensation_Window);
+        SDL_SetRenderDrawColor(renderer2, Color_Background.r, Color_Background.g, Color_Background.b, 0);
+        SDL_RenderClear(renderer2);
+        SDL_SetRenderDrawBlendMode(renderer2, SDL_BLENDMODE_BLEND);
+        SDL_SetRenderDrawColor(renderer2, c.r,c.g,c.b,c.a);
+        SDL_RenderDrawRect(renderer2, &r);
+}
+
+void HT_OSRU_drawSensationWindow(){ // should be revised
+        SDL_Rect r;
+        SDL_Rect r_msg;
+        SDL_Color c;
+       //       = {0,0,0,0};
+        r = getSensationRect();
+	r_msg = getUntransformedRect(r);
+	eyemsg_printf("Sensation Window Rect x,y,w,h = %d,%d,%d,%d", r_msg.x, r_msg.y, r_msg.w, r_msg.h);
+	eyemsg_printf("Fractal Type = %s", (getFractal(randomSequenseNumbersForce[currentSequenceNumberForce]) < thr) ? "Good" : "Bad");
+        c = (getFractal(randomSequenseNumbersForce[currentSequenceNumberForce]) < thr) ? Color_Fixation_Window_Success : Color_Fixation_Window_Error;
         /*
         r.x = (Rect_Regions[getRegion(randomSequenseNumbers[currentSequenceNumber])].x -
                                  ((Rect_Sensation.w - Rect_Regions[getRegion(randomSequenseNumbers[currentSequenceNumber])].w)/2));
@@ -1161,17 +1345,20 @@ void drawFracts(){
 	SDL_SetRenderDrawBlendMode(renderer2, SDL_BLENDMODE_BLEND);
 	SDL_SetRenderDrawColor(renderer2, Color_Background.r, Color_Background.g, Color_Background.b, 0);
 	SDL_RenderClear(renderer2);	
-	SDL_RenderCopy(renderer2, Texture_Fractals[getFractalGood(randomSequenseNumbersChoice[currentSequenceNumberChoice])], NULL, &Rect_Regions[getRegionGood(randomSequenseNumbersRegionsChoice[currentSequenceNumberChoice])]);
-	SDL_RenderCopy(renderer2, Texture_Fractals[getFractalBad(randomSequenseNumbersChoice[currentSequenceNumberChoice])], NULL, &Rect_Regions[getRegionBad(randomSequenseNumbersRegionsChoice[currentSequenceNumberChoice])]);
+	SDL_RenderCopy(renderer2, Texture_Fractals[HT_OSRU_getFractalByLabel(randomSequenseNumbersChoice[currentSequenceNumberChoice], GOOD)], NULL, &Rect_Regions[getRegionByLabel(randomSequenseNumbersRegionsChoice[currentSequenceNumberChoice], GOOD)]);
+	SDL_RenderCopy(renderer2, Texture_Fractals[HT_OSRU_getFractalByLabel(randomSequenseNumbersChoice[currentSequenceNumberChoice], BAD)], NULL, &Rect_Regions[getRegionByLabel(randomSequenseNumbersRegionsChoice[currentSequenceNumberChoice], BAD)]);
 
 }
 
-void HT_OSRU_drawFracts(){ // FIX REQUIRED
+void HT_OSRU_drawFracts()
+{ // FIX REQUIRED
+
 	SDL_SetRenderTarget(renderer2, Texture_Fractal);
 	SDL_SetRenderDrawBlendMode(renderer2, SDL_BLENDMODE_BLEND);
 	SDL_SetRenderDrawColor(renderer2, Color_Background.r, Color_Background.g, Color_Background.b, 0);
 	SDL_RenderClear(renderer2);	
-
+	SDL_RenderCopy(renderer2, Texture_Fractals[HT_OSRU_getFractalByLabel(randomSequenseNumbersChoice[currentSequenceNumberChoice], GOOD)], NULL, &Rect_Regions[getRegionByLabel(randomSequenseNumbersRegionsChoice[currentSequenceNumberChoice], GOOD)]);
+	SDL_RenderCopy(renderer2, Texture_Fractals[HT_OSRU_getFractalByLabel(randomSequenseNumbersChoice[currentSequenceNumberChoice], BAD)], NULL, &Rect_Regions[getRegionByLabel(randomSequenseNumbersRegionsChoice[currentSequenceNumberChoice], BAD)]);
 
 }
 
@@ -1185,22 +1372,44 @@ void eraseFracts(){
 void drawFractsMonkey(){
 	SDL_Rect rg;
 	SDL_Rect rb;
-	rg = Rect_Regions[getRegionGood(randomSequenseNumbersRegionsChoice[currentSequenceNumberChoice])];
-	rb = Rect_Regions[getRegionBad(randomSequenseNumbersRegionsChoice[currentSequenceNumberChoice])];
+	rg = Rect_Regions[getRegionByLabel(randomSequenseNumbersRegionsChoice[currentSequenceNumberChoice], GOOD)];
+	rb = Rect_Regions[getRegionByLabel(randomSequenseNumbersRegionsChoice[currentSequenceNumberChoice], BAD)];
 	eyemsg_printf("Good Fractal %d is set for region %d with x,y,w,h = %d,%d,%d,%d",
 			getFractalGood(randomSequenseNumbersChoice[currentSequenceNumberChoice]),
-			getRegionGood(randomSequenseNumbersRegionsChoice[currentSequenceNumberChoice]),
+			getRegionByLabel(randomSequenseNumbersRegionsChoice[currentSequenceNumberChoice], GOOD),
 			rg.x, rg.y, rg.w, rg.h);
 	eyemsg_printf("Bad Fractal %d is set for region %d with x,y,w,h = %d,%d,%d,%d",
 			getFractalBad(randomSequenseNumbersChoice[currentSequenceNumberChoice]),
-			getRegionBad(randomSequenseNumbersRegionsChoice[currentSequenceNumberChoice]),
+			getRegionByLabel(randomSequenseNumbersRegionsChoice[currentSequenceNumberChoice], BAD),
 			rb.x, rb.y, rb.w, rb.h);
 	SDL_SetRenderTarget(renderer, Texture_Fractal_Monkey);
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 	SDL_SetRenderDrawColor(renderer, Color_Background.r, Color_Background.g, Color_Background.b, 0);
 	SDL_RenderClear(renderer);
-	SDL_RenderCopy(renderer, Texture_Fractals_Monkey[getFractalGood(randomSequenseNumbersChoice[currentSequenceNumberChoice])], NULL, &Rect_Regions[getRegionGood(randomSequenseNumbersRegionsChoice[currentSequenceNumberChoice])]);
+	SDL_RenderCopy(renderer, Texture_Fractals_Monkey[getFractalGood(randomSequenseNumbersChoice[currentSequenceNumberChoice])], NULL, &Rect_Regions[getRegionByLabel(randomSequenseNumbersRegionsChoice[currentSequenceNumberChoice], GOOD))]);
 	SDL_RenderCopy(renderer, Texture_Fractals_Monkey[getFractalBad(randomSequenseNumbersChoice[currentSequenceNumberChoice])], NULL, &Rect_Regions[getRegionBad(randomSequenseNumbersRegionsChoice[currentSequenceNumberChoice])]);
+
+}
+
+void HT_OSRU_drawFractsMonkey(){
+	SDL_Rect rg;
+	SDL_Rect rb;
+	rg = Rect_Regions[getRegionByLabel(randomSequenseNumbersRegionsChoice[currentSequenceNumberChoice], GOOD)];
+	rb = Rect_Regions[getRegionByLabel(randomSequenseNumbersRegionsChoice[currentSequenceNumberChoice], BAD)];
+	eyemsg_printf("Good Fractal %d is set for region %d with x,y,w,h = %d,%d,%d,%d",
+			HT_OSRU_getFractalByLabel(randomSequenseNumbersChoice[currentSequenceNumberChoice], GOOD),
+			getRegionByLabel(randomSequenseNumbersRegionsChoice[currentSequenceNumberChoice], GOOD),
+			rg.x, rg.y, rg.w, rg.h);
+	eyemsg_printf("Bad Fractal %d is set for region %d with x,y,w,h = %d,%d,%d,%d",
+			HT_OSRU_getFractalByLabel(randomSequenseNumbersChoice[currentSequenceNumberChoice], GOOD),
+			getRegionByLabel(randomSequenseNumbersRegionsChoice[currentSequenceNumberChoice], BAD),
+			rb.x, rb.y, rb.w, rb.h);
+	SDL_SetRenderTarget(renderer, Texture_Fractal_Monkey);
+	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+	SDL_SetRenderDrawColor(renderer, Color_Background.r, Color_Background.g, Color_Background.b, 0);
+	SDL_RenderClear(renderer);
+	SDL_RenderCopy(renderer, Texture_Fractals_Monkey[HT_OSRU_getFractalByLabel(randomSequenseNumbersChoice[currentSequenceNumberChoice], GOOD)], NULL, &Rect_Regions[getRegionByLabel(randomSequenseNumbersRegionsChoice[currentSequenceNumberChoice], GOOD))]);
+	SDL_RenderCopy(renderer, Texture_Fractals_Monkey[HT_OSRU_getFractalByLabel(randomSequenseNumbersChoice[currentSequenceNumberChoice], BAD)], NULL, &Rect_Regions[getRegionBad(randomSequenseNumbersRegionsChoice[currentSequenceNumberChoice])]);
 
 }
 
@@ -1435,7 +1644,7 @@ int isInsideSensationWindow(){
 
 int isInsideSensationWindowGood(){
 	SDL_Rect r;
-	r = getTransformedRect(Rect_Regions[getRegionGood(randomSequenseNumbersRegionsChoice[currentSequenceNumberChoice])]);
+	r = getTransformedRect(Rect_Regions[getRegionByLabel(randomSequenseNumbersRegionsChoice[currentSequenceNumberChoice], GOOD))]);
 	if (((Rect_Gaze.x + Rect_Gaze.w/2) > (r.x - ((Rect_Sensation.w - r.w)/2))) &&			
 	    ((Rect_Gaze.x + Rect_Gaze.w/2) < (r.x + r.w + ((Rect_Sensation.w - r.w)/2))) &&
     	    ((Rect_Gaze.y + Rect_Gaze.h/2) > (r.y - ((Rect_Sensation.h - r.h)/2))) && 
@@ -1631,6 +1840,10 @@ int getFractal(int n){
         return n%8;
 }
 
+int HT_OSRU_getFractal(int n){
+        return n % numberOfFractPerTrial;
+}
+
 int getRegionGood(int n){
 	if (regionOverride != 0){
 		return (regionOverride-1);
@@ -1653,11 +1866,11 @@ int HT_OSRU_getRegion(int n){
 	if (regionOverride != 0){
 		return (regionOverride-1);
 	}
-        return n / numberOfFractsPerTrial;
+        return n / numberOfFractPerTrial;
 }
 
 int HT_OSRU_getFractal(int n){
-        return n % numberOfFractsPerTrial;
+        return n % numberOfFractPerTrial;
 }
 
 int HT_OSRU_getRegionByLabel(int n, int Label)
@@ -1672,10 +1885,10 @@ int HT_OSRU_getRegionByLabel(int n, int Label)
 			{
 				if (regionOverride != 0)
 				{
-					return (regionOverride + numberOfFractsPerTrial / 2 + 1);
+					return (regionOverride + numberOfFractPerTrial / 2 + 1);
 				}
 
-				return (numberOfFractsPerTrial / 2 + n % numberOfFractsPerTrial)) % numberOfFractsPerTrial;
+				return (numberOfFractPerTrial / 2 + n % numberOfFractPerTrial)) % numberOfFractPerTrial;
 			}
 			else if (Label == 1)
 			{
@@ -1684,7 +1897,7 @@ int HT_OSRU_getRegionByLabel(int n, int Label)
 					return (regionOverride - 1);
 				}
 
-				return n % numberOfFractsPerTrial;
+				return n % numberOfFractPerTrial;
 			}
             break;
 
@@ -1694,7 +1907,7 @@ int HT_OSRU_getRegionByLabel(int n, int Label)
 					return (regionOverride - 1);
 				}
 
-			return n % numberOfFractsPerTrial;
+			return n % numberOfFractPerTrial;
             break;
 
         case 3: //Type is probable labeling and we set a range of 0 to 100 for this labels. (Difference of this part and previous part is in rewarding part)
@@ -1703,7 +1916,7 @@ int HT_OSRU_getRegionByLabel(int n, int Label)
 					return (regionOverride - 1);
 				}
 
-			return n % numberOfFractsPerTrial;
+			return n % numberOfFractPerTrial;
             break;
         default:;
             break;
@@ -1720,14 +1933,17 @@ int HT_OSRU_TypeVar()
     if (strcmp(Type1, LabelingType) == 0)
     {
         TypeTempVar = 1;
+		n_o_s = 2;
     }
     else if (strcmp(Type2, LabelingType) == 0)
     {
         TypeTempVar = 2;
+		n_o_s = numberOfFractPerTrial;
     }
     else if (strcmp(Type3, LabelingType) == 0)
     {
         TypeTempVar = 3;
+		n_o_s = numberOfFractPerTrial;
     }
 
 	return TypeTempVar;
@@ -1737,37 +1953,37 @@ int HT_OSRU_TypeVar()
 int HT_OSRU_getFractalByLabel(int n, int label)
 {
 	
-    switch (TypeTempVar)
-    {
-        case 1: //Type is Binary Labeling for n fractal in set factal 1 to floor(n / 2) is good and floor(n / 2) + 1 to n is bad
+    // switch (TypeTempVar)
+    // {
+        // case 1: //Type is Binary Labeling for n fractal in set factal 1 to floor(n / 2) is good and floor(n / 2) + 1 to n is bad
             if (Label == 0)
 			{
 				
-				return n / (numberOfFractsPerTrial / 2);
+				return n / (numberOfFractPerTrial / 2);
 
 			}
 			else if (Label == 1)
 			{
 				
-				return numberOfFractsPerTrial / 2 + n % numberOfFractsPerTrial;
+				return numberOfFractPerTrial / 2 + n % numberOfFractPerTrial;
 				
 			}
             break;
 
-        case 2: //Type is amount labeling and we set a range of 0 to 100 for this labels.
+        // case 2: //Type is amount labeling and we set a range of 0 to 100 for this labels.
             
-			return n % numberOfFractsPerTrial;
+			// return n % numberOfFractPerTrial;
 
-            break;
+            // break;
 
-        case 3: //Type is probable labeling and we set a range of 0 to 100 for this labels. (Difference of this part and previous part is in rewarding part)
+        // case 3: //Type is probable labeling and we set a range of 0 to 100 for this labels. (Difference of this part and previous part is in rewarding part)
             
-			return n % numberOfFractsPerTrial;
+			// return n % numberOfFractPerTrial;
 
-            break;
-        default:;
-            break;
-    }
+            // break;
+        // default:;
+            // break;
+    // }
 }
 
 // SDL_Rect getSensationRectByLabel(){
@@ -1824,7 +2040,7 @@ SDL_Rect getSensationRectGood(){ /////////////// Should be revised HT_OSRU /////
 	return rect;
 }
 
-SDL_Rect getSensationRectBad(){ /////////////// Should be revised HT_OSRU //////////////
+SDL_Rect getSensationRectBad(){
 	SDL_Rect r;
 	SDL_Rect rect;
 	r.x = (Rect_Regions[getRegionBad(randomSequenseNumbersRegionsChoice[currentSequenceNumberChoice])].x -
@@ -1835,6 +2051,21 @@ SDL_Rect getSensationRectBad(){ /////////////// Should be revised HT_OSRU //////
 	r.h = Rect_Sensation.h;
 	eyemsg_printf("Current Bad Sensation Window x,y,w,h = %d,%d,%d,%d", r.x, r.y, r.w, r.h);
 	eyemsg_printf("Current Bad Fractal Region = %d", getRegionBad(randomSequenseNumbersRegionsChoice[currentSequenceNumberChoice]));
+	rect = getTransformedRect(r);
+	return rect;
+}
+
+SDL_Rect getSensationRectByLabel(int Label){ /////////////// Should be revised HT_OSRU //////////////
+	SDL_Rect r;
+	SDL_Rect rect;
+	r.x = (Rect_Regions[getRegionByLabel(randomSequenseNumbersRegionsChoice[currentSequenceNumberChoice], Label)].x -
+                                 ((Rect_Sensation.w - Rect_Regions[getRegionByLabel(randomSequenseNumbersRegionsChoice[currentSequenceNumberChoice], Label)])].w)/2)); 
+	r.y = (Rect_Regions[getRegionByLabel(randomSequenseNumbersRegionsChoice[currentSequenceNumberChoice], Label)].y -
+                                 ((Rect_Sensation.h - Rect_Regions[getRegionByLabel(randomSequenseNumbersRegionsChoice[currentSequenceNumberChoice], Label)].h)/2));
+	r.w = Rect_Sensation.w;
+	r.h = Rect_Sensation.h;
+	eyemsg_printf("Current Bad Sensation Window x,y,w,h = %d,%d,%d,%d", r.x, r.y, r.w, r.h);
+	eyemsg_printf("Current Bad Fractal Region = %d", getRegionByLabel(randomSequenseNumbersRegionsChoice[currentSequenceNumberChoice], Label));
 	rect = getTransformedRect(r);
 	return rect;
 }
@@ -2028,7 +2259,7 @@ int reloadConf(){
 
 			int parsedInt;
 			parsedInt = atoi(strstr(str, "="));
-			numberOfFractsPerTrial = parsedInt;
+			numberOfFractPerTrial = parsedInt;
 
 		}
 
@@ -2047,6 +2278,15 @@ int reloadConf(){
 			int parsedInt;
 			parsedInt = atoi(strstr(str, "="));
 			AsAdmin = parsedInt;
+
+		}
+
+		if (strstr(str, "Sequence_Length") != NULL)
+		{
+
+			int parsedInt;
+			parsedInt = atoi(strstr(str, "="));
+			Sequence_Length = parsedInt;
 
 		}		
 
@@ -2084,18 +2324,25 @@ void HT_OSRU_setRegions(){
 	double ANGLE = M_PI_4;
 
 	for (int i=0; i < 1; i++){
-		for (int j=0; j < numberOfFractsPerTrial; j++){
-			Rect_Regions[numberOfFractsPerTrial * i + j].w = Regions_Width;
-			Rect_Regions[numberOfFractsPerTrial * i + j].h = Regions_Height;
-			Rect_Regions[numberOfFractsPerTrial * i + j].x = Regions_Center_X +
+		for (int j=0; j < numberOfFractPerTrial; j++){
+			Rect_Regions[numberOfFractPerTrial * i + j].w = Regions_Width;
+			Rect_Regions[numberOfFractPerTrial * i + j].h = Regions_Height;
+			Rect_Regions[numberOfFractPerTrial * i + j].x = Regions_Center_X +
 				(i+1)* Regions_Inter_Ring_Distance * (cos(j*ANGLE + Regions_Offset* M_PI/180)) -
 				Regions_Width/2;
-			Rect_Regions[numberOfFractsPerTrial * i + j].y = Regions_Center_Y +
+			Rect_Regions[numberOfFractPerTrial * i + j].y = Regions_Center_Y +
 				(i+1)* Regions_Inter_Ring_Distance * (sin(j*ANGLE + Regions_Offset* M_PI/180)) -
 			Regions_Height/2;
 			eyemsg_printf("region[%d].x,y,w,h = %d, %d\n",i, Rect_Regions[j].x, Rect_Regions[j].y, Rect_Regions[j].w, Rect_Regions[j].h);
 		}
 	}
+}
+
+void currTempLabels() // UbHTOs //
+{
+	curr_Fract_Label = FractalLabels[randomSequenseNumbersForce(currentSequenceNumberChoice)]
+	curr_Bad_Fract_Label = FractalLabels[HT_OSRU_getFractalByLabel(randomSequenseNumbersChoice[currentSequenceNumberChoice], BAD)]
+	curr_Good_Fract_Label = FractalLabels[HT_OSRU_getFractalByLabel(randomSequenseNumbersChoice[currentSequenceNumberChoice], GOOD)]
 }
 
 void drawGrid(){
@@ -2214,7 +2461,29 @@ void stopPollingForPhotodiodeAck(){
 	}
 }
 
-
+void labelRanging(int set)
+{
+    if (set > BinaryModeSTPoint && set =< BinaryModeSTPoint + BinaryModeLen)
+    {
+        strcpy(LabelingType, "Binary_Labeling")
+    }
+    else
+    {
+        if (set > AmountModeSTPoint && set =< AmountModeSTPoint + AmountModeLen)
+        {
+            strcpy(LabelingType, "Amount_Labeling")
+        }
+        else
+        {
+            if (set > ProbablisticModeSTPoint && set =< ProbablisticModeSTPoint + ProbablisticModeLen)
+            {
+                strcpy(LabelingType, "Probable_Labeling")
+            }
+        }
+        
+    }
+    
+}
 
 void getPhotodiodeAck(){
         unsigned char ack[2] = {0};
@@ -2287,4 +2556,54 @@ void erasePhotodiodeMonkey(){
     SDL_SetRenderTarget(renderer, Texture_Photodiode_Monkey);
     SDL_SetRenderDrawColor(renderer, Color_Background.r, Color_Background.g, Color_Background.b, 0);
     SDL_RenderClear(renderer);
+}
+
+void Rewarder(double FractLabel, int Type) // UbHTOs
+{
+    
+    int RewardAmount = 0;
+    switch (Type)
+    {
+        case 1: //Type is Binary Labeling
+            RewardAmount = FractLabel;
+            break;
+
+        case 2: //Type is amount labeling
+            RewardAmount = FractLabel;
+            break;
+
+        case 3: //Type is probable labeling
+            
+            LuckNumber = RandGenerator()
+            if (LuckNumber > FractLabel)
+            {
+                RewardAmount = GOOD_REWARD;
+            }
+            else
+            {
+                RewardAmount = BAD_REWARD;
+            }
+                
+            break;
+        default:;
+            break;
+    }
+
+    RewardSender(RewardAmount);
+
+}
+
+
+void RewardSender(int RewardAmount)
+{
+	int M = 10;
+
+	M = 10 * (numberOfFractPerTrial - 1) + RewardAmount;
+	
+	set_blocking (fd, 0);
+		for (int i=0;i<7; i++){
+        	write (fd, "R%d\n", M, 3);
+		}
+        usleep ( (3) * 100 );
+
 }
