@@ -57,6 +57,10 @@ int fractSetToLoad;
 int sentSaccToNeuralData = 0;
 FC_Font* font;
 
+////// UbHTOs //////
+
+
+
 /***************************** PERFORM AN EXPERIMENTAL TRIAL  ***************/
 
 /* End recording: adds 100 msec of data to catch final events */
@@ -218,6 +222,8 @@ int simple_recording_trial()
 	totalRunChoice = 0;
 	drawGrid();
 	reloadConf();
+	//GoodBadThr = numberOfFractPerTrial / 2;
+	//printf(GoodBadThr);
 
    /* 
 	  we don't use getkey() especially in a time-critical trial
@@ -231,6 +237,8 @@ int simple_recording_trial()
 	{ 
 	  /* First, check if recording aborted  */
 	  if((error=check_recording())!=0) return error; 
+	  
+	  
 	  /* Check if trial time limit expired */
 	  /*
 	  if(current_time() > trial_start+20000L)
@@ -384,6 +392,7 @@ int simple_recording_trial()
 			if (statePhase == State_Phase_Enter){
 				updateFrameMonkey();
 				eraseFracts();
+				// printf(GoodBadThr);
 				printf("FractFix Enter\n");
 				eyemsg_printf("FractFix Enter\n");
 				drawFixationWindow(Color_Fixation_Window_Hold);
@@ -932,8 +941,8 @@ void drawSensationWindow(){
         r = getSensationRect();
 	r_msg = getUntransformedRect(r);
 	eyemsg_printf("Sensation Window Rect x,y,w,h = %d,%d,%d,%d", r_msg.x, r_msg.y, r_msg.w, r_msg.h);
-	eyemsg_printf("Fractal Type = %s", (getFractal(randomSequenseNumbersForce[currentSequenceNumberForce]) < 4) ? "Good" : "Bad");
-        c = (getFractal(randomSequenseNumbersForce[currentSequenceNumberForce]) < 4) ? Color_Fixation_Window_Success : Color_Fixation_Window_Error;
+	eyemsg_printf("Fractal Type = %s", (getFractal(randomSequenseNumbersForce[currentSequenceNumberForce]) < numberOfFractPerTrial) ? "Good" : "Bad");
+        c = (getFractal(randomSequenseNumbersForce[currentSequenceNumberForce]) < numberOfFractPerTrial / 2) ? Color_Fixation_Window_Success : Color_Fixation_Window_Error;
         /*
         r.x = (Rect_Regions[getRegion(randomSequenseNumbers[currentSequenceNumber])].x -
                                  ((Rect_Sensation.w - Rect_Regions[getRegion(randomSequenseNumbers[currentSequenceNumber])].w)/2));
@@ -1518,29 +1527,33 @@ SDL_Rect scaleRenderer(SDL_Rect i){
 }
 */
 
-int getRegion(int n){
+int getRegion(int n)
+{
 	if (regionOverride != 0){
 		return (regionOverride-1);
 	}
-        return n/8;
+        return n / numberOfFractPerTrial;
 }
 
-int getFractal(int n){
-        return n%8;
+int getFractal(int n)
+{
+        return n % numberOfFractPerTrial;
 }
 
-int getRegionGood(int n){
+int getRegionGood(int n)
+{
 	if (regionOverride != 0){
 		return (regionOverride-1);
 	}
-	return n%8;
+	return n % numberOfFractPerTrial;
 }
 
-int getRegionBad(int n){
+int getRegionBad(int n)
+{
 	if (regionOverride != 0){
-		return (regionOverride+3);
+		return (regionOverride + numberOfFractPerTrial / 2 + 1);
 	}
-	return (4+getRegionGood(n))%8;
+	return (numberOfFractPerTrial / 2 + getRegionGood(n)) % numberOfFractPerTrial;
 	//return ((4 - getRegionGood(n)) > 0) ? (4 - getRegionGood(n)) : (4 + getRegionGood(n));
 }
 
@@ -1550,12 +1563,14 @@ int getFractal(int n){
 	return n%8;
 }
 */
-int getFractalGood(int n){
-	return n/4;
+int getFractalGood(int n)
+{
+	return n / (numberOfFractPerTrial / 2);
 }
 
-int getFractalBad(int n){
-	return 4+(n%4);
+int getFractalBad(int n)
+{
+	return numberOfFractPerTrial / 2 + (n % (numberOfFractPerTrial / 2));
 }
 SDL_Rect getSensationRectGood(){
 	SDL_Rect r;
@@ -1785,14 +1800,14 @@ int reloadConf(){
 
 		//////// UbHTOs ////////
 
-		if (strstr(str, "numberOfFractPerTrial") != NULL)
+		/* if (strstr(str, "numberOfFractPerTrial") != NULL)
 		{
 
 			int parsedInt;
 			parsedInt = atoi(strstr(str, "="));
 			numberOfFractPerTrial = parsedInt;
 
-		}
+		} */
 
 	}
 	fclose(fp);
@@ -1804,19 +1819,20 @@ int reloadConf(){
 	return 1;
 }
 
-void setRegions(){
+void setRegions()
+{
 	Regions_Center_X = bound3.w/2;
 	Regions_Center_Y = bound3.h/2;
 	double ANGLE = M_PI_4;
 
 	for (int i=0; i<1; i++){
-		for (int j=0; j<8; j++){
-			Rect_Regions[8*i+j].w = Regions_Width;
-			Rect_Regions[8*i+j].h = Regions_Height;
-			Rect_Regions[8*i+j].x = Regions_Center_X +
+		for (int j=0; j < numberOfFractPerTrial; j++){
+			Rect_Regions[numberOfFractPerTrial * i + j].w = Regions_Width;
+			Rect_Regions[numberOfFractPerTrial * i + j].h = Regions_Height;
+			Rect_Regions[numberOfFractPerTrial * i + j].x = Regions_Center_X +
 				(i+1)* Regions_Inter_Ring_Distance * (cos(j*ANGLE + Regions_Offset* M_PI/180)) -
 				Regions_Width/2;
-			Rect_Regions[8*i+j].y = Regions_Center_Y +
+			Rect_Regions[numberOfFractPerTrial * i + j].y = Regions_Center_Y +
 				(i+1)* Regions_Inter_Ring_Distance * (sin(j*ANGLE + Regions_Offset* M_PI/180)) -
 			Regions_Height/2;
 			eyemsg_printf("region[%d].x,y,w,h = %d, %d\n",i, Rect_Regions[j].x, Rect_Regions[j].y, Rect_Regions[j].w, Rect_Regions[j].h);
