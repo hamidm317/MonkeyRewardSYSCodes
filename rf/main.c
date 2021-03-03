@@ -28,6 +28,12 @@
 #include "SDL2/SDL_image.h"
 #include "SDL2/SDL2_rotozoom.h"
 
+
+#define _POSIX_C_SOURCE 200809L
+
+#include <inttypes.h>
+#include <time.h>
+
 DISPLAYINFO dispinfo; /* display information: size, colors, refresh rate */
 /* Name for experiment: goes in task bar, and in EDF file */
 char program_name[100] = "Eyelink Sample Experiment 2.0";
@@ -878,4 +884,3 @@ double getUntransformedEdge(int in){
 	printf("inside untransform: i (%d) * scale (%f)\n", in, renderer2ScaleFractX);
 	return in * renderer2ScaleFractX;
 }
-
