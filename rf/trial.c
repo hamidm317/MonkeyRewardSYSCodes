@@ -50,9 +50,6 @@ int regionOverride = 0;
 int coordinationOverride = 0;
 int gazeXOffset = 0;
 int gazeYOffset = 0;
-int numberOfFractsPerTrial = 0;
-
-char LabelingType[20];
 /***************************** PERFORM AN EXPERIMENTAL TRIAL  ***************/
 
 /* End recording: adds 100 msec of data to catch final events */
@@ -1481,23 +1478,6 @@ int reloadConf(){
 			parsedDouble = atof(strstr(str, "=") + 1);	
 			gazeYOffset  = (int)degToPixel(1.0*parsedDouble);
 		}
-		///////////// UpDaTeS bY HT ////////////
-		if (strstr(str, "LabelingType") != NULL)
-		{
-
-			char parsedStr[20];
-			parsedStr = strstr(str, "=");
-			strcpy(LabelingType, parsedStr);
-
-		}
-		if (strstr(str, "numberOfFractPerTrial") != NULL)
-		{
-
-			int parsedInt;
-			parsedInt = atoi(strstr(str, "="));
-			numberOfFractsPerTrial = parsedInt;
-
-		}
 
 
 	}
@@ -1678,7 +1658,6 @@ writeConfigToEyelink(){
 
 void sendEventToNeuralData(char *msg){
     write (fd, msg, sizeof(msg)-1);
-	print_current_time_with_ms(); // UbHTOs
     usleep ( (6) * 100 );
     printf("code = %s, len = %d\n", msg, sizeof(msg)-1);
     sentEventToNeuralData = 1;
@@ -1737,3 +1716,5 @@ void getPhotodiodeAck(){
 int gotPhotodiodeAck(){
     return photodiodeAck;
 }
+
+
