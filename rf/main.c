@@ -129,11 +129,6 @@ int eye_used;
 int loadFromConf;
 int defaultFractalSet = 120;
 
-////////////////////////////////////// UpDaTeS By HT_OSRU //////////////////////////////////////////
-
-int APP_VER = 0;
-int numberOfFractPerTrial = 0;
-
 ALLF_DATA evt;			/* buffer to hold sample and event data*/
 
 struct trialStateStruct trialStates[Trial_State_Len];
@@ -282,15 +277,7 @@ int app_main(char * trackerip, DISPLAYINFO * disp)
             SDL_SetTextureBlendMode(Texture_Sensation_Window, SDL_BLENDMODE_BLEND);
 
 
-                        /////////////////////////// UpDaTeS By HT_OSRU ////////////////////////////
-						if (APP_VER == 0)
-						{
-							fractalLoaderFromSet(fractSetToLoad);
-						}
-						else if (APP_VER == 1)
-						{
-							HT_OSRU_fractalLoaderFromSet(fractSetToLoad, numberOfFractPerTrial);
-						}
+                        fractalLoaderFromSet(fractSetToLoad);
 
 			randGen(264, randomSequenseNumbers,1);
 			//for (int i=0; i<64; i++)
