@@ -699,7 +699,7 @@ int simple_recording_trial()
 				printf("Result Enter\n");
 				eyemsg_printf("Result Enter\n");
 				printf("Gaze Result From Result Enter: %s\n", (gazeFractFixResult == Gaze_Fract_Fix_Result_KeptGaze) ? "Kept" : ((gazeFractFixResult == Gaze_Fract_Fix_Result_Broke) ? "Broke" : "Undet"));
-				if (hasKeptFractFixaton()){
+				if (hasKeptFractFixaton() && APP_VER == 0){
 					drawFixationWindow(Color_Fixation_Window_Success);
 					//printf("Set batch 0\n");
 					//eyemsg_printf("Set batch 0\n");
@@ -721,6 +721,46 @@ int simple_recording_trial()
 						sendSmallReward();
 						sendEventToNeuralData(CODES_REWARD_SMALL);
 						writeToEyelink("Bad Fractal Reward Delivered");
+					}
+
+					playSuccess();
+					//sound
+					//reward
+					//eyelink event
+					//blackrock event
+				}
+				else if (hasKeptFractFixaton() && APP_VER == 1){
+					drawFixationWindow(Color_Fixation_Window_Success);
+					//printf("Set batch 0\n");
+					//eyemsg_printf("Set batch 0\n");
+					isRedo = 0;
+					if (currentExperimentType == Experiment_Type_Force)
+						Reward_Event_Sender(rewardValueGenerator(currentFractalLabel));
+
+					if (currentExperimentType == Experiment_Type_Choice && hasChosenGoodFract()){
+						if (currentExperimentType == Experiment_Type_Choice && hasChosenGoodFract())
+							currentGoodFractChoices++;
+						printf("\n\n\ninside Reward big\n\n\n");
+                        //write(fd, "RL\n", 3);
+						//sendBigReward();
+						/* if (currentExperimentType == Experiment_Type_Force)
+							Rewarder(rewardValueGenerator(currentFractalLabel)); */
+						// if (currentExperimentType == Experiment_Type_Choice)
+							Reward_Event_Sender(rewardValueGenerator(currentGoodFractLabel));
+						sendEventToNeuralData(CODES_REWARD_LARGE); // Should be moved to Reward_Event_Sender() function
+						writeToEyelink("Good Fractal Reward Delivered"); // Should be edited
+					}
+					else if ((currentExperimentType == Experiment_Type_Force && getFractal(randomSequenseNumbersForce[currentSequenceNumberForce]) < numberOfFractPerTrial) ||
+						 (currentExperimentType == Experiment_Type_Choice && hasChosenBadFract())){
+						printf("\n\n\ninside Reward small\n\n\n");
+                        //write(fd, "RS\n", 3);
+						//sendSmallReward();
+						/* if (currentExperimentType == Experiment_Type_Force)
+							Rewarder(rewardValueGenerator(currentFractalLabel)); */
+						// if (currentExperimentType == Experiment_Type_Choice)
+							Reward_Event_Sender(rewardValueGenerator(currentGoodFractLabel));
+						sendEventToNeuralData(CODES_REWARD_SMALL); // Should be moved to Reward_Event_Sender() function
+						writeToEyelink("Bad Fractal Reward Delivered"); // Should be edited
 					}
 
 					playSuccess();
@@ -2026,6 +2066,18 @@ void sendSmallReward(){
         usleep ( (3) * 100 );
 }
 
+void Reward_Event_Sender(int ReVa){ // UbHTOs //
+        set_blocking (fd, 0);
+		for (int i=0;i<7; i++){
+        	write (fd, "R%d\n", ReVa);
+		}
+
+	// HERE FOR SENDING NEURAL DATA
+	// HERE FOR EYELINK PRINT
+
+        usleep ( (3) * 100 );
+}
+
 void drawPhotodiodeMonkey(){
     SDL_SetRenderTarget(renderer, Texture_Photodiode_Monkey);
     SDL_SetRenderDrawColor(renderer, Color_Background.r, Color_Background.g, Color_Background.b, 0);
@@ -2053,7 +2105,7 @@ int rewardValueGenerator(int n)
 {
 	if (TypeVal == 2)
 	{
-		if RandGenerator() <= n / (numberOfFractPerTrial - 1)
+		if (RandGenerator() <= n / (numberOfFractPerTrial - 1))
 			return 21;
 		else
 			return 20;
