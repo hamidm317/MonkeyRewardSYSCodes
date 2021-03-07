@@ -763,37 +763,37 @@ int parseArgs(int argc, char **argv, char **trackerip, DISPLAYINFO *disp )
                         successVolume = (float) atof(argv[i]);
                 }*/
 
-		if(_stricmp(argv[i],"-set") ==0 && argv[i+1]){
+		if(_stricmp(argv[i],"-set") == 0 && argv[i+1]){
 			i++;
 			fractSetToLoad = atoi(argv[i]);
 			setInputted = 1;
 		}
 
-		else if(_stricmp(argv[i],"-NOF") ==0 && argv[i+1]){
+		else if(_stricmp(argv[i],"-NOF") == 0 && argv[i+1]){
 			i++;
 			numberOfFractPerTrial = atoi(argv[i]);
 			setInputted = 1;
 		}
 
-		else if(_stricmp(argv[i],"-APV") ==0 && argv[i+1]){
+		else if(_stricmp(argv[i],"-APV") == 0 && argv[i+1]){
 			i++;
 			APP_VER = atoi(argv[i]);
 			setInputted = 1;
 		}
 
-		else if(_stricmp(argv[i],"-FSL") ==0 && argv[i+1]){
+		else if(_stricmp(argv[i],"-FSL") == 0 && argv[i+1]){
 			i++;
 			forceSequenceLen = atoi(argv[i]);
 			setInputted = 1;
 		}
 
-		else if(_stricmp(argv[i],"-CSL") ==0 && argv[i+1]){
+		else if(_stricmp(argv[i],"-CSL") == 0 && argv[i+1]){
 			i++;
 			choiceSequenceLen = atoi(argv[i]);
 			setInputted = 1;
 		}
 
-		else if(_stricmp(argv[i],"-rCSL") ==0 && argv[i+1]){
+		else if(_stricmp(argv[i],"-rCSL") == 0 && argv[i+1]){
 			i++;
 			regionsChoiceSequenceLen = atoi(argv[i]);
 			setInputted = 1;
@@ -828,7 +828,7 @@ int parseArgs(int argc, char **argv, char **trackerip, DISPLAYINFO *disp )
                         printf("\t\t -erramp <amplitude of error tone>. currently %f\n", errorVolume);
                         printf("\t\t -sucamp <amplitude of success tone>. currently %f\n", successVolume);
 			*/
-			return 1;
+			//return 1;
 		}
 
 		/*if(_stricmp(argv[i],"-NOF") ==0 && argv[i+1]){
