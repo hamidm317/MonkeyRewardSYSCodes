@@ -67,6 +67,7 @@ extern SDL_Texture *Texture_Fractal;
 extern SDL_Texture *Texture_Sensation_Window;
 extern SDL_Texture *Texture_Fractal_Monkey;
 extern SDL_Texture *Texture_Photodiode_Monkey;
+extern SDL_Texture *Texture_Stats;
 extern SDL_Rect bound;
 extern SDL_Rect bound1;
 extern SDL_Rect bound2;
@@ -101,6 +102,7 @@ extern SDL_Color Color_Fixation_Window_Hold;
 extern SDL_Color Color_Fixation_Window_Error;
 extern SDL_Color Color_Fixation_Window_Success;
 extern SDL_Color Color_Gaze;
+extern SDL_Color Color_Stats;
 extern SDL_Color Color_Grid;
 extern SDL_Color Color_Photodiode;
 
@@ -284,12 +286,16 @@ int getFractal(int n);
 SDL_Rect getSensationRect();
 SDL_Rect getTransformedRect(SDL_Rect i);
 void randGen(int len, int *arr, int isRand);
-
+int degToPixel(double degrees);
+void set_blocking (int fd, int should_block);
+int set_interface_attribs (int fd, int speed, int parity);
 
 void drawSensationWindowGood();
 void drawSensationWindowBad();
 void drawPhotodiodeMonkey();
 void erasePhotodiodeMonkey();
+
+void fractalLoaderFromSet(int set);
 
 
 
@@ -305,14 +311,15 @@ void stopPollingForPhotodiodeAck();
 // UbHTOs
 // variables
 
-void labelRanging;
 
 int APP_VER;
 int numberOfFractPerTrial;
+int GoodBadThr;
+
 int Sequence_Length;
 int GOOD_REWARD;
 int BAD_REWARD;
-int TypeTempVar;
+int TypeVal;
 
 double FractalLabels[50];
 
@@ -327,12 +334,9 @@ int BinaryModeLen;
 
 int rewardValue;
 
-int n_o_s;
-int a_o_r;
-
 // functions 
 
 void labelRanging();
-void HT_OSRU_fractalLoaderFromSet(int set, int numberOfFractPerTrial);
+void HT_OSRU_fractalLoaderFromSet(int set);
 void fractalOptLabeller(int *FractalLabels, int TypeTempVar, int numberOfFractPerTrial);
 void HT_OSRU_TypeVar();
