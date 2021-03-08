@@ -43,6 +43,7 @@ unsigned long rewardTimer = 0;      // keep track of time since reward dispense 
 unsigned long mesgTimer = 0;       // keep track of time since message on pins start
 unsigned int mesgCounter = 0;      // keep track of times a message went on pins
 unsigned int rewardDuration = 0;   // duration of reward command
+//unsigned int daleyMeasureTimer = 0;
 
 ///////////////////////// UbHTOs /////////////
 
@@ -50,8 +51,6 @@ unsigned int n_o_s = 2; // number of states that monkey may get reward
 unsigned int a_o_r = 0; // state that monkey give reward in Rewarding message
 
 //////////////////////////////////////////////
-
-//unsigned int daleyMeasureTimer = 0;
 
 void setup() {
   for (int i=0; i<sizeof(mesgPin)/sizeof(mesgPin[0]); i++){
@@ -81,16 +80,30 @@ void loop() {
 //    Serial.println((unsigned int)inputString.charAt(1));
 //    Serial.print("Received string = ");
     Serial.println(inputString);
+    
 //    delayMicroseconds(100);
 //    if (inputString[0] == 0)
 //          chkitr = 1;
     if (inputString[0] == 'R') ////// UbHTOs ///////
     { 
-      n_o_s = inputString[chkitr+1];
-      a_o_r = inputString[chkitr+2];
+      //Serial.println(inputString[0]);
+      //Serial.println(inputString[1]);
+      //Serial.println(inputString[2]);
+      n_o_s = inputString[1];
+      a_o_r = inputString[2];
+      //Serial.println("Number of states is ");
+      //Serial.println(n_o_s);
+      //for (int c=0; c < 50 ; c++);
+      //Serial.println("Amount of Reward is ");
+      //Serial.println(a_o_r);
+      //for (int c=0; c < 50 ; c++);
+      rewardDuration = 100 + (a_o_r - 48) * 200 / (n_o_s - 1 - 48);
+      //Serial.println("Reward value is ");
+      Serial.println(rewardDuration);
+      //Serial.println("\n");
+
+      //for (int c=0; c < 50 ; c++);
       
-      rewardDuration = 70 + a_o_r / n_o_s * 130;
-    }
 //    Serial.println('r');
       rewardTimer = millis();    // set reward dispense start time
 //      Serial.print("rewardTimer = ");
@@ -172,6 +185,7 @@ void loop() {
     inputStringItr = 0;
     justReceivedString = false; // clear input string
   }
+
   
   // Check if timers are up
   if (dispenseOngoing && (millis() > (rewardTimer + rewardDuration))){
