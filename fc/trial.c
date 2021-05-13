@@ -735,8 +735,10 @@ int simple_recording_trial()
 					//eyemsg_printf("Set batch 0\n");
 					isRedo = 0;
 					if (currentExperimentType == Experiment_Type_Force)
+					{
 						Reward_Event_Sender(rewardValueGenerator(currentFractalLabel));
-
+						printf("Force reward Delivered\n");
+					}
 					if (currentExperimentType == Experiment_Type_Choice && hasChosenGoodFract()){
 						if (currentExperimentType == Experiment_Type_Choice && hasChosenGoodFract())
 							currentGoodFractChoices++;
@@ -749,9 +751,9 @@ int simple_recording_trial()
 							Reward_Event_Sender(rewardValueGenerator(currentGoodFractLabel));
 						sendEventToNeuralData(CODES_REWARD_LARGE); // Should be moved to Reward_Event_Sender() function
 						writeToEyelink("Good Fractal Reward Delivered"); // Should be edited
+						printf("Choice Good reward Delivered\n");
 					}
-					else if ((currentExperimentType == Experiment_Type_Force && getFractal(randomSequenseNumbersForce[currentSequenceNumberForce]) < numberOfFractPerTrial) ||
-						 (currentExperimentType == Experiment_Type_Choice && hasChosenBadFract())){
+					else if (currentExperimentType == Experiment_Type_Choice && hasChosenBadFract()){
 						printf("\n\n\ninside Reward small\n\n\n");
                         //write(fd, "RS\n", 3);
 						//sendSmallReward();
@@ -761,6 +763,7 @@ int simple_recording_trial()
 							Reward_Event_Sender(rewardValueGenerator(currentGoodFractLabel));
 						sendEventToNeuralData(CODES_REWARD_SMALL); // Should be moved to Reward_Event_Sender() function
 						writeToEyelink("Bad Fractal Reward Delivered"); // Should be edited
+						printf("Choice Bad reward Delivered\n");
 					}
 
 					playSuccess();
@@ -1610,17 +1613,19 @@ int getFractal(int n){
 */
 int getFractalGood(int n)
 {
-	currentGoodFractLabel = n / (numberOfFractPerTrial / 2);
+	currentGoodFractLabel = (n / (numberOfFractPerTrial / 2)) % numberOfFractPerTrial;
 	printf("Current Good fractal label is = %d\n", currentGoodFractLabel);
-	return n / (numberOfFractPerTrial / 2);
+	return (n / (numberOfFractPerTrial / 2)) % numberOfFractPerTrial;
 }
 
 int getFractalBad(int n)
 {
-	currentBadFractLabel = numberOfFractPerTrial / 2 + (n % (numberOfFractPerTrial / 2));	
+	currentBadFractLabel = (numberOfFractPerTrial / 2 + (n % (numberOfFractPerTrial / 2))) % numberOfFractPerTrial;	
 	printf("Current Bad fractal label is = %d\n", currentBadFractLabel);
-	return numberOfFractPerTrial / 2 + (n % (numberOfFractPerTrial / 2));
+	return (numberOfFractPerTrial / 2 + (n % (numberOfFractPerTrial / 2)) + 1) % numberOfFractPerTrial;
 }
+
+
 SDL_Rect getSensationRectGood(){
 	SDL_Rect r;
 	SDL_Rect rect;
@@ -2068,14 +2073,17 @@ void sendSmallReward(){
 
 void Reward_Event_Sender(int ReVa){ // UbHTOs //
         set_blocking (fd, 0);
+	char *temp[4];
+	sprintf(temp, "R%d\n", ReVa);
+	printf("Reward command to arduino is %s", temp);
 		for (int i=0;i<7; i++){
-        	write (fd, "R%d\n", ReVa);
+        	write (fd, temp, 4);
 		}
 
 	// HERE FOR SENDING NEURAL DATA
 	// HERE FOR EYELINK PRINT
 
-        usleep ( (3) * 100 );
+        usleep ( (6) * 100 );
 }
 
 void drawPhotodiodeMonkey(){
