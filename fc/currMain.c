@@ -136,6 +136,26 @@ struct trialStateStruct trialStates[Trial_State_Len];
 ///////////////// UbHTOs ///////////////////
 
 int numberOfFractPerTrial = 8;
+int GoodBadThr = 4;
+int APP_VER = 0;
+int TypeVal = 0;
+
+int forceSequenceLen = 40;
+int choiceSequenceLen = 10;
+int regionsChoiceSequenceLen = 16;
+
+int ProbablisticModeSTPoint = 100;
+int ProbablisticModeLen = 20;
+
+int AmountModeSTPoint = 200;
+int AmountModeLen = 20;
+
+int BinaryModeSTPoint = 120;
+int BinaryModeLen = 80;
+
+// int equalizer;
+
+
 
 int exit_eyelink()
 {
@@ -184,27 +204,34 @@ int get_tracker_sw_version(char* verstr)
 int app_main(char * trackerip, DISPLAYINFO * disp)
 {
 	UINT16 i, j;
+	printf("App main opened!\n");
     char verstr[50];
     int eyelink_ver = 0;
     int tracker_software_ver = 0;
-	char *vd = NULL;
 
+	char *vd = NULL;
+	
+	
 	vd = getenv("SDL_VIDEODRIVER");
+	printf("getenv ok!\n");	
 	if (vd)
 #ifdef WIN32
 		_putenv("SDL_VIDEODRIVER=");
 #elif defined(UNIX)
 		putenv("SDL_VIDEODRIVER=");
 #endif
-
+	printf("putenv ok!\n");
 
 #ifdef WIN32
     edit_dialog(NULL,"Create EDF File", "Enter Tracker EDF file name:", our_file_name,260);
 #endif
+	printf("After edit!\n");	
 	if(trackerip)
 		set_eyelink_address(trackerip);
+	printf("After edit 1!\n");
 	if(open_eyelink_connection(0))
 	  return -1;       /* abort if we can't open link*/
+	printf("After edit 2!\n");	
 	set_offline_mode();
 	flush_getkey_queue();/* initialize getkey() system */
     eyelink_ver = eyelink_get_tracker_version(verstr);
@@ -218,11 +245,12 @@ int app_main(char * trackerip, DISPLAYINFO * disp)
 		int displays = SDL_GetNumVideoDisplays();
 	// reloadConf();
 	//SDL_Surface* screenSurface = NULL;
-
+	printf("Should not be shown!\n");
 		
 		SDL_GetDisplayBounds(0,&bound); 
+	printf("Should not be shown 1!\n");
 		SDL_GetDisplayBounds(1,&bound1); 
-
+	printf("Should not be shown 2!\n");
 		//bound1.w = bound1.h;
 
 		bound2.x = bound.x + 700;
@@ -281,7 +309,13 @@ int app_main(char * trackerip, DISPLAYINFO * disp)
             SDL_SetTextureBlendMode(Texture_Stats, SDL_BLENDMODE_BLEND);
 
 
-			fractalLoaderFromSet(fractSetToLoad);
+			if (APP_VER == 0)
+				fractalLoaderFromSet(fractSetToLoad);
+			else if (APP_VER == 1)
+			{
+				HT_OSRU_fractalLoaderFromSet(fractSetToLoad);
+				labelRanging(fractSetToLoad);
+			}
 
 			/*
 			SDL_Surface *srf = IMG_Load("fracts/i1000.jpeg");
@@ -329,10 +363,21 @@ int app_main(char * trackerip, DISPLAYINFO * disp)
 			//	randomSequenseNumbers[i] %= 16;
 			//	randomSequenseNumbersRegions[i] %= 16;
 			//}
-			randGen(64, randomSequenseNumbersForce,1);
-			randGen(16, randomSequenseNumbersChoice,1);
-			randGen(16, randomSequenseNumbersRegionsChoice,1);
-			
+			randGen(forceSequenceLen, randomSequenseNumbersForce,1);
+			randGen(choiceSequenceLen, randomSequenseNumbersChoice,1);
+			randGen(regionsChoiceSequenceLen, randomSequenseNumbersRegionsChoice,1);
+
+			/*FILE * fL;
+			char logger[20];
+
+			sprintf(logger, "%d\n%d\n", forceSequenceLen, choiceSequenceLen);
+
+    			fL = fopen("RandomLogger.txt","a");
+	
+    			fprintf (fL, logger);
+		
+			fclose (fL); */		
+
 			//for (int i=0; i<64; i++)
 			//	printf("Rand[%d] = %d\n", i, randomSequenseNumbers[i]);
 		if( window == NULL )
@@ -733,17 +778,47 @@ int parseArgs(int argc, char **argv, char **trackerip, DISPLAYINFO *disp )
                         successVolume = (float) atof(argv[i]);
                 }*/
 
-		if(_stricmp(argv[i],"-set") ==0 && argv[i+1]){
+		if(_stricmp(argv[i],"-set") == 0 && argv[i+1]){
 			i++;
 			fractSetToLoad = atoi(argv[i]);
 			setInputted = 1;
 		}
 
-		else if(_stricmp(argv[i],"-NOF") ==0 && argv[i+1]){
+		else if(_stricmp(argv[i],"-NOF") == 0 && argv[i+1]){
 			i++;
 			numberOfFractPerTrial = atoi(argv[i]);
 			setInputted = 1;
 		}
+
+		else if(_stricmp(argv[i],"-APV") == 0 && argv[i+1]){
+			i++;
+			APP_VER = atoi(argv[i]);
+			setInputted = 1;
+		}
+
+		else if(_stricmp(argv[i],"-FSL") == 0 && argv[i+1]){
+			i++;
+			forceSequenceLen = atoi(argv[i]);
+			setInputted = 1;
+		}
+
+		else if(_stricmp(argv[i],"-CSL") == 0 && argv[i+1]){
+			i++;
+			choiceSequenceLen = atoi(argv[i]);
+			setInputted = 1;
+		}
+
+		else if(_stricmp(argv[i],"-rCSL") == 0 && argv[i+1]){
+			i++;
+			regionsChoiceSequenceLen = atoi(argv[i]);
+			setInputted = 1;
+		}
+
+		/* else if(_stricmp(argv[i],"-LT") ==0 && argv[i+1]){
+			i++;
+			TypeVal = atoi(argv[i]);
+			setInputted = 1;
+		} */
 
 		else{
                         //printf("\t === General ===\n");
@@ -768,7 +843,7 @@ int parseArgs(int argc, char **argv, char **trackerip, DISPLAYINFO *disp )
                         printf("\t\t -erramp <amplitude of error tone>. currently %f\n", errorVolume);
                         printf("\t\t -sucamp <amplitude of success tone>. currently %f\n", successVolume);
 			*/
-			return 1;
+			//return 1;
 		}
 
 		/*if(_stricmp(argv[i],"-NOF") ==0 && argv[i+1]){
@@ -810,6 +885,8 @@ srand(time(NULL));
 	dispDegPerPixel = disptheta / (dispHeightpx/2);
 	dispPixelPerDeg = (dispHeightpx/2) / disptheta;
 
+	//numberOfBatchExperiments = (int)(numberOfFractals / choiceSequenceLen);
+	
 	numberOfBatchExperiments = 5;
 	fractSetToLoad = 100;
 	trialStates[Trial_State_ITI].expirationTime = 2000;
@@ -835,7 +912,7 @@ srand(time(NULL));
         Rect_Sensation.h = (int)degToPixel(6.0);
         Rect_Photodiode_Monkey.w= (int)degToPixel(1.0);
         Rect_Photodiode_Monkey.h= (int)degToPixel(1.0);
-        numberOfFractals = 80;
+        numberOfFractals = forceSequenceLen + choiceSequenceLen;
 
         errorVolume = 0.4;
         successVolume = 0.5;
@@ -843,6 +920,9 @@ srand(time(NULL));
 	loadFromConf = 1;
 
 	int rv = parseArgs(argc,argv, &trackerip, &disp);
+
+	GoodBadThr = numberOfFractPerTrial / 2; /// UbHTOs (a function will do it according to labelling type)
+	printf("GoodBadThr = %d", GoodBadThr);
 
 
         if(fp = fopen("count.txt", "r")){
@@ -893,11 +973,11 @@ srand(time(NULL));
 void fractalLoaderFromSet(int set){
         //101 , 102
         //set -= 100;
-        int fractSetIdx = 1000 + (numberOfFractPerTrial * (set - 100));
+        int fractSetIdx = 1000 + (8 * (set - 100));
         char temp[100];
         char idxToStr[100];
-
-        for (int i = 0; i < numberOfFractPerTrial; i++){
+	
+        for (int i = 0; i < 8; i++){
                 strcpy(temp, "/home/lab/Fractals/i");
                 sprintf(idxToStr, "%d", fractSetIdx + i);
                 strcat(temp, idxToStr);
@@ -910,7 +990,34 @@ void fractalLoaderFromSet(int set){
 		SDL_SetTextureBlendMode(Texture_Fractals_Monkey[i], SDL_BLENDMODE_BLEND);
 
         }
+
 }
+
+void HT_OSRU_fractalLoaderFromSet(int set)
+{
+	//101 , 102
+        //set -= 100;
+        int fractSetIdx;
+        char temp[100];
+        char idxToStr[100];
+
+	fractSetIdx = set * 10 + 1;
+
+        for (int i = 0; i < numberOfFractPerTrial; i++){
+                strcpy(temp, "/home/lab/Desktop/SDL2_CoreGraphics_expth_example/SampleExperiments/exp_new_pool/Fractals/j");
+                sprintf(idxToStr, "%d", fractSetIdx + i);
+                strcat(temp, idxToStr);
+                strcat(temp, ".jpeg");
+		printf("file = %s\n", temp);
+		Surface_Fractals[i] = IMG_Load(temp);
+		Texture_Fractals[i] = SDL_CreateTextureFromSurface(renderer2, Surface_Fractals[i]);
+		SDL_SetTextureBlendMode(Texture_Fractals[i], SDL_BLENDMODE_BLEND);
+		Texture_Fractals_Monkey[i] = SDL_CreateTextureFromSurface(renderer, Surface_Fractals[i]);
+		SDL_SetTextureBlendMode(Texture_Fractals_Monkey[i], SDL_BLENDMODE_BLEND);
+
+        }
+}
+
 
 			/*
 			SDL_Surface *srf = IMG_Load("fracts/i1000.jpeg");
@@ -929,3 +1036,31 @@ void fractalLoaderFromSet(int set){
 			}
 
 */
+
+
+void labelRanging(int set)
+{
+    if (set > BinaryModeSTPoint && set <= BinaryModeSTPoint + BinaryModeLen)
+    {
+        TypeVal = 0;
+	printf("Labeling type is binary\n");
+    }
+    else
+    {
+        if (set > AmountModeSTPoint && set <= AmountModeSTPoint + AmountModeLen)
+        {
+            TypeVal = 1;
+		printf("Labeling type is Amount\n");
+        }
+        else
+        {
+            if (set > ProbablisticModeSTPoint && set <= ProbablisticModeSTPoint + ProbablisticModeLen)
+            {
+                TypeVal = 2;
+		printf("Labeling type is probabalistic\n");
+            }
+        }
+        
+    }
+    
+}
