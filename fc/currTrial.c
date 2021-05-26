@@ -59,6 +59,11 @@ FC_Font* font;
 
 ////// UbHTOs //////
 
+int currentGoodFractLabel;
+int currentBadFractLabel;
+int currentFractalLabel;
+int state = 0;
+int equalizer;
 
 
 /***************************** PERFORM AN EXPERIMENTAL TRIAL  ***************/
@@ -502,7 +507,7 @@ int simple_recording_trial()
                     eyemsg_printf("TAG: %s", CODES_CHOICE_GOOD_STIM_ONSET[getRegionGood(randomSequenseNumbersRegionsChoice[currentSequenceNumberChoice])]);
 				}
 				else if (currentExperimentType == Experiment_Type_Force){
-					if (getFractal(randomSequenseNumbersForce[currentSequenceNumberForce]) < 4){
+					if (getFractal(randomSequenseNumbersForce[currentSequenceNumberForce]) < numberOfFractPerTrial / 2){
 							sendEventToNeuralData(CODES_FORCE_GOOD_STIM_ONSET[getRegion(randomSequenseNumbersForce[currentSequenceNumberForce])]);
                     		eyemsg_printf("TAG: %s", CODES_FORCE_GOOD_STIM_ONSET[getRegion(randomSequenseNumbersForce[currentSequenceNumberForce])]);
 						}
@@ -696,12 +701,12 @@ int simple_recording_trial()
 				printf("Result Enter\n");
 				eyemsg_printf("Result Enter\n");
 				printf("Gaze Result From Result Enter: %s\n", (gazeFractFixResult == Gaze_Fract_Fix_Result_KeptGaze) ? "Kept" : ((gazeFractFixResult == Gaze_Fract_Fix_Result_Broke) ? "Broke" : "Undet"));
-				if (hasKeptFractFixaton()){
+				if (hasKeptFractFixaton() && APP_VER == 0){
 					drawFixationWindow(Color_Fixation_Window_Success);
 					//printf("Set batch 0\n");
 					//eyemsg_printf("Set batch 0\n");
 					isRedo = 0;
-					if ((currentExperimentType == Experiment_Type_Force && getFractal(randomSequenseNumbersForce[currentSequenceNumberForce]) < 4) ||
+					if ((currentExperimentType == Experiment_Type_Force && getFractal(randomSequenseNumbersForce[currentSequenceNumberForce]) < numberOfFractPerTrial / 2) ||
 					    (currentExperimentType == Experiment_Type_Choice && hasChosenGoodFract())){
 						if (currentExperimentType == Experiment_Type_Choice && hasChosenGoodFract())
 							currentGoodFractChoices++;
@@ -711,13 +716,56 @@ int simple_recording_trial()
 						sendEventToNeuralData(CODES_REWARD_LARGE);
 						writeToEyelink("Good Fractal Reward Delivered");
 					}
-					else if ((currentExperimentType == Experiment_Type_Force && getFractal(randomSequenseNumbersForce[currentSequenceNumberForce]) < 8) ||
+					else if ((currentExperimentType == Experiment_Type_Force && getFractal(randomSequenseNumbersForce[currentSequenceNumberForce]) < numberOfFractPerTrial) ||
 						 (currentExperimentType == Experiment_Type_Choice && hasChosenBadFract())){
 						printf("\n\n\ninside Reward small\n\n\n");
                         //write(fd, "RS\n", 3);
 						sendSmallReward();
 						sendEventToNeuralData(CODES_REWARD_SMALL);
 						writeToEyelink("Bad Fractal Reward Delivered");
+					}
+
+					playSuccess();
+					//sound
+					//reward
+					//eyelink event
+					//blackrock event
+				}
+				else if (hasKeptFractFixaton() && APP_VER == 1){
+					drawFixationWindow(Color_Fixation_Window_Success);
+					//printf("Set batch 0\n");
+					//eyemsg_printf("Set batch 0\n");
+					isRedo = 0;
+					if (currentExperimentType == Experiment_Type_Force)
+					{
+						Reward_Event_Sender(rewardValueGenerator(currentFractalLabel));
+						printf("Force reward Delivered\n");
+					}
+					if (currentExperimentType == Experiment_Type_Choice && hasChosenGoodFract()){
+						if (currentExperimentType == Experiment_Type_Choice && hasChosenGoodFract())
+							currentGoodFractChoices++;
+						printf("\n\n\ninside Reward big\n\n\n");
+                        //write(fd, "RL\n", 3);
+						//sendBigReward();
+						/* if (currentExperimentType == Experiment_Type_Force)
+							Rewarder(rewardValueGenerator(currentFractalLabel)); */
+						// if (currentExperimentType == Experiment_Type_Choice)
+							Reward_Event_Sender(rewardValueGenerator(currentGoodFractLabel));
+						sendEventToNeuralData(CODES_REWARD_LARGE); // Should be moved to Reward_Event_Sender() function
+						writeToEyelink("Good Fractal Reward Delivered"); // Should be edited
+						printf("Choice Good reward Delivered\n");
+					}
+					else if (currentExperimentType == Experiment_Type_Choice && hasChosenBadFract()){
+						printf("\n\n\ninside Reward small\n\n\n");
+                        //write(fd, "RS\n", 3);
+						//sendSmallReward();
+						/* if (currentExperimentType == Experiment_Type_Force)
+							Rewarder(rewardValueGenerator(currentFractalLabel)); */
+						// if (currentExperimentType == Experiment_Type_Choice)
+							Reward_Event_Sender(rewardValueGenerator(currentGoodFractLabel));
+						sendEventToNeuralData(CODES_REWARD_SMALL); // Should be moved to Reward_Event_Sender() function
+						writeToEyelink("Bad Fractal Reward Delivered"); // Should be edited
+						printf("Choice Bad reward Delivered\n");
 					}
 
 					playSuccess();
@@ -1079,6 +1127,8 @@ void drawFractsMonkey(){
 	SDL_Rect rb;
 	rg = Rect_Regions[getRegionGood(randomSequenseNumbersRegionsChoice[currentSequenceNumberChoice])];
 	rb = Rect_Regions[getRegionBad(randomSequenseNumbersRegionsChoice[currentSequenceNumberChoice])];
+	
+ 
 	eyemsg_printf("Good Fractal %d is set for region %d with x,y,w,h = %d,%d,%d,%d",
 			getFractalGood(randomSequenseNumbersChoice[currentSequenceNumberChoice]),
 			getRegionGood(randomSequenseNumbersRegionsChoice[currentSequenceNumberChoice]),
@@ -1087,6 +1137,18 @@ void drawFractsMonkey(){
 			getFractalBad(randomSequenseNumbersChoice[currentSequenceNumberChoice]),
 			getRegionBad(randomSequenseNumbersRegionsChoice[currentSequenceNumberChoice]),
 			rb.x, rb.y, rb.w, rb.h);
+
+	FILE * fL;
+	char logger[20];
+
+	sprintf(logger, "%d\n%d\n", getFractalGood(randomSequenseNumbersChoice[currentSequenceNumberChoice]), getFractalBad(randomSequenseNumbersChoice[currentSequenceNumberChoice]));
+
+    	fL = fopen("RandomLogger.txt","a");
+	
+    	fprintf (fL, logger);
+	
+	fclose (fL);
+
 	SDL_SetRenderTarget(renderer, Texture_Fractal_Monkey);
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 	SDL_SetRenderDrawColor(renderer, Color_Background.r, Color_Background.g, Color_Background.b, 0);
@@ -1102,6 +1164,17 @@ void drawFractMonkey(){
 			getFractal(randomSequenseNumbersForce[currentSequenceNumberForce]), 
 			getRegion(randomSequenseNumbersForce[currentSequenceNumberForce]),
 			r.x, r.y, r.w, r.h);
+
+	FILE * fL;
+	char logger[20];
+
+	sprintf(logger, "%d\n", getFractal(randomSequenseNumbersForce[currentSequenceNumberForce]));
+
+    	fL = fopen("RandomLogger.txt","a");
+	
+    	fprintf (fL, logger);
+	
+	fclose (fL);
 
 	SDL_SetRenderTarget(renderer, Texture_Fractal_Monkey);
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
@@ -1532,12 +1605,26 @@ int getRegion(int n)
 	if (regionOverride != 0){
 		return (regionOverride-1);
 	}
-        return n / numberOfFractPerTrial;
+        return n / 8;
 }
 
 int getFractal(int n)
 {
-        return n % numberOfFractPerTrial;
+	currentFractalLabel = n % numberOfFractPerTrial;
+	printf("Current fractal label is = %d \n", currentFractalLabel);
+
+	/* FILE * fL;
+	char logger[20];
+
+	sprintf(logger, "%d\n", n % numberOfFractPerTrial);
+
+    	fL = fopen("RandomLogger.txt","a");
+	
+    	fprintf (fL, logger);
+	
+	fclose (fL); */
+
+	return n % numberOfFractPerTrial;
 }
 
 int getRegionGood(int n)
@@ -1545,15 +1632,15 @@ int getRegionGood(int n)
 	if (regionOverride != 0){
 		return (regionOverride-1);
 	}
-	return n % numberOfFractPerTrial;
+	return n % 8;
 }
 
 int getRegionBad(int n)
 {
 	if (regionOverride != 0){
-		return (regionOverride + numberOfFractPerTrial / 2 + 1);
+		return (regionOverride + 3);
 	}
-	return (numberOfFractPerTrial / 2 + getRegionGood(n)) % numberOfFractPerTrial;
+	return (4 + getRegionGood(n)) % 8;
 	//return ((4 - getRegionGood(n)) > 0) ? (4 - getRegionGood(n)) : (4 + getRegionGood(n));
 }
 
@@ -1565,13 +1652,97 @@ int getFractal(int n){
 */
 int getFractalGood(int n)
 {
-	return n / (numberOfFractPerTrial / 2);
+	// currentGoodFractLabel = (n / (numberOfFractPerTrial / 2)) % numberOfFractPerTrial;
+	// printf("Current Good fractal label is = %d\n", currentGoodFractLabel);
+
+	/* FILE * fL;
+	char logger[20];
+
+	sprintf(logger, "%d\n", (n / (numberOfFractPerTrial / 2)) % numberOfFractPerTrial);
+
+    	fL = fopen("RandomLogger.txt","a");
+	
+    	fprintf (fL, logger);
+	
+	fclose (fL); */
+
+	// return (n / (numberOfFractPerTrial / 2)) % numberOfFractPerTrial;
+	
+	return getFractalChoice(n);
 }
 
 int getFractalBad(int n)
 {
-	return numberOfFractPerTrial / 2 + (n % (numberOfFractPerTrial / 2));
+	// currentBadFractLabel = (numberOfFractPerTrial / 2 + (n % (numberOfFractPerTrial / 2))) % numberOfFractPerTrial;	
+	// printf("Current Bad fractal label is = %d\n", currentBadFractLabel);
+
+	/* FILE * fL;
+	char logger[20];
+
+	sprintf(logger, "%d\n", (numberOfFractPerTrial / 2 + (n % (numberOfFractPerTrial / 2)) + 1) % numberOfFractPerTrial);
+
+    	fL = fopen("RandomLogger.txt","a");
+	
+    	fprintf (fL, logger);
+	
+	fclose (fL); */
+
+	// return (numberOfFractPerTrial / 2 + (n % (numberOfFractPerTrial / 2)) + 1) % numberOfFractPerTrial;
+
+	return getFractalChoice(n);
 }
+
+int getFractalChoice(int n)
+{
+	int temp;
+	n = n % (numberOfFractPerTrial * 2);
+
+	temp = n % numberOfFractPerTrial;
+
+	/* if (GoB)
+	{
+
+		currentGoodFractLabel = temp;
+		printf("Current Good fractal label is = %d\n", currentGoodFractLabel);
+		
+		return currentGoodFractLabel;
+
+	}
+	else
+	{
+
+		currentBadFractLabel = temp + 2;
+		printf("Current Good fractal label is = %d\n", currentBadFractLabel);
+		
+		return currentBadFractLabel;
+
+	} */
+
+	if (state == 0)
+	{
+
+		currentGoodFractLabel = temp;
+		printf("Current Good fractal label is = %d\n", currentGoodFractLabel);
+		state = 1;
+
+		return currentGoodFractLabel;
+
+	}
+	else if (state == 1)
+	{
+
+		int temp_2 = n % (numberOfFractPerTrial * 2);
+		state = 0;
+
+		if (temp_2 < 5)
+			currentBadFractLabel = (temp + 1) % numberOfFractPerTrial;
+		else if(temp_2 < 10)
+			currentBadFractLabel = (temp + 2) % numberOfFractPerTrial;
+
+	}
+
+}
+
 SDL_Rect getSensationRectGood(){
 	SDL_Rect r;
 	SDL_Rect rect;
@@ -1826,13 +1997,13 @@ void setRegions()
 	double ANGLE = M_PI_4;
 
 	for (int i=0; i<1; i++){
-		for (int j=0; j < numberOfFractPerTrial; j++){
-			Rect_Regions[numberOfFractPerTrial * i + j].w = Regions_Width;
-			Rect_Regions[numberOfFractPerTrial * i + j].h = Regions_Height;
-			Rect_Regions[numberOfFractPerTrial * i + j].x = Regions_Center_X +
+		for (int j=0; j < 8; j++){
+			Rect_Regions[8 * i + j].w = Regions_Width;
+			Rect_Regions[8 * i + j].h = Regions_Height;
+			Rect_Regions[8 * i + j].x = Regions_Center_X +
 				(i+1)* Regions_Inter_Ring_Distance * (cos(j*ANGLE + Regions_Offset* M_PI/180)) -
 				Regions_Width/2;
-			Rect_Regions[numberOfFractPerTrial * i + j].y = Regions_Center_Y +
+			Rect_Regions[8 * i + j].y = Regions_Center_Y +
 				(i+1)* Regions_Inter_Ring_Distance * (sin(j*ANGLE + Regions_Offset* M_PI/180)) -
 			Regions_Height/2;
 			eyemsg_printf("region[%d].x,y,w,h = %d, %d\n",i, Rect_Regions[j].x, Rect_Regions[j].y, Rect_Regions[j].w, Rect_Regions[j].h);
@@ -2017,6 +2188,29 @@ void sendSmallReward(){
         usleep ( (3) * 100 );
 }
 
+void Reward_Event_Sender(int ReVa){ // UbHTOs //
+        set_blocking (fd, 0);
+	char *temp[4];
+	sprintf(temp, "R%d\n", ReVa);
+	printf("Reward command to arduino is %s", temp);
+		for (int i=0;i<7; i++){
+        	write (fd, temp, 4);
+		}
+
+	// HERE FOR SENDING NEURAL DATA
+	// HERE FOR EYELINK PRINT
+
+	/*FILE * fL;
+
+    	fL = fopen("RandomRewardLogger.txt","a");
+	
+    	fprintf (fL, temp);
+		
+	fclose (fL);*/
+
+        usleep ( (6) * 100 );
+}
+
 void drawPhotodiodeMonkey(){
     SDL_SetRenderTarget(renderer, Texture_Photodiode_Monkey);
     SDL_SetRenderDrawColor(renderer, Color_Background.r, Color_Background.g, Color_Background.b, 0);
@@ -2038,4 +2232,70 @@ void drawStats(){
     Text_Draw(font, renderer2, 0, 1*lineWidthSize, Color_Stats, 0.75, 0.5, "Valid Choice/Total Choice = %d/%d", currentSequenceNumberChoice, totalRunChoice);
     Text_Draw(font, renderer2, 0, 2*lineWidthSize, Color_Stats, 0.75, 0.5, "Correct Choice/Valid Choice = %d/%d", currentGoodFractChoices, currentSequenceNumberChoice);
 
+}
+
+int rewardValueGenerator(int n)
+{
+	
+	FILE * fL;
+	char logger[20];
+
+	sprintf(logger, "%d\n", n);
+
+    	fL = fopen("FractalLogger.txt","a");
+	
+    	fprintf (fL, logger);
+		
+	fclose (fL);
+
+	if (TypeVal == 2)
+	{
+		int ranTmp;
+		ranTmp = RandGenerator();
+		printf("\n\n\n\nrandom generated number is: %d \n", ranTmp);
+		//printf(ranTmp);
+		
+		if (RandGenerator() <= n)
+		{
+
+			FILE * fL;
+			char logger[3];
+
+			sprintf(logger, "%d\n", 1);
+	
+		    	fL = fopen("RandomRewardLogger.txt","a");
+	
+		    	fprintf (fL, logger);
+		
+			fclose (fL);
+
+			return 21;
+		
+		}
+		else
+		{
+
+			FILE * fL;
+			char logger[3];
+
+			sprintf(logger, "%d\n", 0);
+	
+		    	fL = fopen("RandomRewardLogger.txt","a");
+	
+		    	fprintf (fL, logger);
+		
+			fclose (fL);
+
+			return 20;
+		
+		}
+	}
+	else if (TypeVal == 1)
+	{
+		return numberOfFractPerTrial * 10 + n;
+	}
+	else if (TypeVal == 0)
+	{
+		return 20 + n;
+	}
 }
