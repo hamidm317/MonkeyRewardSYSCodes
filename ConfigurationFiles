@@ -24,3 +24,73 @@ randomSequenseNumbersRegionsChoice = 40
 randomSequenseNumbersForce = 60
 
 ///////////////////////////////////////
+
+Fixation Task Config
+numoftrials=400
+iti=1000
+gazewait=5000
+fixfix=1200
+FixationWindowDegree=5
+FixationDegree=1
+
+///////////////////////////////////////
+
+Force Task Config
+iti=1000
+gazewait=3000
+fixfix=100
+randomOverlap=1
+overlapMin=300
+overlapMax=500
+overlap=300
+sacwait=10000
+fractfix=800
+EccentricityDegree=10
+FractalSizeDegree=4
+FixationWindowDegree=7
+SensationWindowDegree=6
+RegionOverride=0
+PhotodiodeCheck=1
+GazeXOffset=0
+GazeYOffset=-1
+
+///////////////////////////////////////
+
+RF Mapping Config
+iti=1000
+gazewait=3000
+OverrideFractOnOFF=1
+fractoff=400
+fracton=200
+EccentricityDegree=2.8
+FractalSizeDegree=4
+FixationWindowDegree=7
+RegionOverride=0
+TrialCount=262
+TrialBlock=4
+GazeXOffset=0
+GazeYOffset=0
+
+///////////////////////////////////////
+
+Search Task Config
+RejectWithoutExitTime=900
+RejectAfterExitTime=400
+FixationBackTime=300
+CommitTime=600
+GazeWaitTime=90
+FixationFixTime=400
+SearchTime=2500
+FractFixTime=100
+EccentricityDegree=9.5
+FractalSizeDegree=4
+FixationWindowDegree=6.5
+SensationWindowDegree=6
+BringFixationBackWindowDegree=5
+TrialSkipRewardDuration=100
+TrialSkipRewardProbability=40
+GazeXOffset=0
+GazeYOffset=-2
+
+//////////////////////////////////////
+
